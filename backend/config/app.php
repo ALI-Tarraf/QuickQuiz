@@ -2,6 +2,7 @@
 
 return [
 
+
     /*
     |--------------------------------------------------------------------------
     | Application Name
@@ -117,6 +118,11 @@ return [
     | Supported drivers: "file", "cache"
     |
     */
+    'api' => [
+    \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
+    'throttle:api',
+    \Illuminate\Routing\Middleware\SubstituteBindings::class,
+],
 
     'maintenance' => [
         'driver' => env('APP_MAINTENANCE_DRIVER', 'file'),
