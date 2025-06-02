@@ -10,9 +10,19 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
-    ->withMiddleware(function (Middleware $middleware) {
-        //
-    })
+->withMiddleware(function (Middleware $middleware) {
+    $middleware->alias([
+        'role' => \App\Http\Middleware\RoleMiddleware::class,
+        'auth' => \App\Http\Middleware\Authenticate::class,
+        'jwt.auth' => \Tymon\JWTAuth\Http\Middleware\Authenticate::class, // <<< أضيفي هذا
+    ]);
+
+    $middleware->appendToGroup('api', [
+        \Illuminate\Http\Middleware\HandleCors::class,
+    ]);
+})
+
+
     ->withExceptions(function (Exceptions $exceptions) {
         //
     })->create();
