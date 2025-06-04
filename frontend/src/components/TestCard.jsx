@@ -143,7 +143,13 @@ const TestCard = ({ value, isInResultsPage = false }) => {
                 px: 2,
                 py: 1,
               }}
-              disabled={status === "not available" ? true : false}
+              disabled={
+                isInResultsPage
+                  ? false
+                  : status === "not available"
+                  ? true
+                  : false
+              }
             >
               {isInResultsPage ? "Show Results" : "Start Exam"}
             </Button>
