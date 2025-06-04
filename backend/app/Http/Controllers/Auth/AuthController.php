@@ -27,7 +27,7 @@ class AuthController extends Controller
             'last_name' => 'required|string|max:255',
             'email' => 'required|email|unique:users',
             'password' => ['required', 'confirmed', Password::min(8)->mixedCase()->letters()->numbers()->symbols()],
-            'role' => 'required|in:0,1',
+            'role' => 'required|in:student,teacher',
             'specialization' => 'required_if:role,1|string|max:255',
         ]);
 
@@ -58,8 +58,9 @@ class AuthController extends Controller
             DB::commit();
 
             // Create tokens
-            $accessToken = JWTAuth::fromUser($user);
-            $refreshToken = JWTAuth::refresh($accessToken);
+         // Create tokens
+$accessToken = JWTAuth::fromUser($user);
+$refreshToken = JWTAuth::claims(['exp' => now()->addDays(7)->timestamp])->fromUser($user);
 
             // Create cookies (15 minutes for access token, 7 days for refresh token)
             $accessTokenCookie = cookie('access_token', $accessToken, 15, null, null, true, true, false, 'Strict');

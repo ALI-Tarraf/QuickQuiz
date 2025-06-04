@@ -24,7 +24,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 
 // Routes for students
-Route::middleware(['auth:api', 'role:0'])->group(function () {
+Route::middleware(['auth:api', 'role:student'])->group(function () {
     Route::get('/student/dashboard', [StudentController::class, 'dashboard']);
     Route::get('/student/profile', [StudentController::class, 'profile']);
 
@@ -40,7 +40,7 @@ Route::middleware(['auth:api', 'role:0'])->group(function () {
 });
 
 // Routes for teachers
-Route::middleware(['auth:api','role:1'])->group(function () {
+Route::middleware(['auth:api','role:teacher'])->group(function () {
     Route::get('/teacher/dashboard', [TeacherController::class, 'dashboard']);
     Route::get('/teacher/profile', [TeacherController::class, 'profile']);
 
