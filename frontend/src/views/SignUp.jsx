@@ -28,7 +28,10 @@ const Signup = () => {
     password: yup
       .string()
       .required("Password is required")
-      .min(8, "Password is too short - should be 8 chars minimum."),
+      .min(8, "Password is too short - should be 8 chars minimum.")
+      .matches(/[a-z]/, "Password must contain at least 1 lowercase letter")
+      .matches(/[A-Z]/, "Password must contain at least 1 uppercase letter")
+      .matches(/[0-9]/, "Password must contain at least 1 number"),
     confirm_password: yup
       .string()
       .required("Confirm password is required")
