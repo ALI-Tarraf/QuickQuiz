@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Form, Formik } from "formik";
 import * as yup from "yup";
 import backgroundImage from "../assets/intro1.jpg";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
+import { register } from "../store/slices/auth/authSlice";
 import {
   Box,
   Button,
@@ -14,9 +15,16 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const { isLoading, user } = useSelector((state) => state.auth);
+
+  const dispatch = useDispatch();
+
+  const navigate = useNavigate();
 
   const loginSchema = yup.object().shape({
     first_name: yup.string().required("First name is required"),
@@ -55,6 +63,52 @@ const Signup = () => {
     is_teacher: false,
     spec: "",
   };
+  const submitHandler = (values) => {
+    delete values["confirm_password"];
+    if (!values.is_teacher) {
+      delete values["spec"];
+      // console.log({
+      //   first_name: values.first_name,
+      //   last_name: values.last_name,
+      //   email: values.email,
+      //   password: values.password,
+      //   role: "student",
+      // });
+      dispatch(
+        register({
+          first_name: values.first_name,
+          last_name: values.last_name,
+          email: values.email,
+          password: values.password,
+          role: "student",
+        })
+      );
+    }
+    if (values.is_teacher) {
+      // console.log({
+      //   first_name: values.first_name,
+      //   last_name: values.last_name,
+      //   email: values.email,
+      //   password: values.password,
+      //   role: "teacher",
+      //   spec: values.spec,
+      // });
+      dispatch(
+        register({
+          first_name: values.first_name,
+          last_name: values.last_name,
+          email: values.email,
+          password: values.password,
+          role: "teacher",
+          specialization: values.spec,
+        })
+      );
+    }
+  };
+
+  useEffect(() => {
+    if (user) navigate("/");
+  }, [user]);
 
   return (
     <>
@@ -88,7 +142,7 @@ const Signup = () => {
           initialValues={initialValues}
           validationSchema={loginSchema}
           validateOnChange={false}
-          onSubmit={(values) => console.log(values)}
+          onSubmit={submitHandler}
         >
           {(props) => (
             <Box sx={{ padding: "1rem" }}>

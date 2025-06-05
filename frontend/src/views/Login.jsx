@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import backgroundImage from "../assets/intro1.jpg";
 import { Form, Formik } from "formik";
 import * as yup from "yup";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
+import { useDispatch, useSelector } from "react-redux";
+import { login } from "../store/slices/auth/authSlice";
 import {
   Box,
   Button,
@@ -12,11 +14,13 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
-
+  const { isLoading, user } = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const loginSchema = yup.object().shape({
     email: yup
       .string()
@@ -32,7 +36,12 @@ const Login = () => {
     email: "",
     password: "",
   };
-
+  const submitHandler = (values) => {
+    dispatch(login({ email: values.email, password: values.password }));
+  };
+  useEffect(() => {
+    if (user) navigate("/testspage");
+  }, [user]);
   return (
     <>
       <Box
@@ -64,7 +73,7 @@ const Login = () => {
         <Formik
           initialValues={initialValues}
           validationSchema={loginSchema}
-          onSubmit={(values) => console.log(values)}
+          onSubmit={submitHandler}
         >
           {(props) => (
             <Form>
@@ -133,7 +142,7 @@ const Login = () => {
                     fullWidth
                     sx={{ backgroundColor: "rgba(8,81,98,1)" }}
                   >
-                    {"Login"}
+                    {isLoading ? "Loading..." : "Login"}
                   </Button>
                 </Stack>
                 <Typography

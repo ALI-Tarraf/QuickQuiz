@@ -9,8 +9,22 @@ import TestResultDetails from "./views/TestResultDetails";
 import MainLayout from "./views/MainLayout";
 import RoleProtectedRoute from "./components/RoleProtectedRoute";
 import Unauthorized from "./views/Unauthorized";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { getAuthenticatedUser } from "./store/slices/auth/authSlice";
+import Cookies from "universal-cookie";
 
 function App() {
+  const dispatch = useDispatch();
+  const { user, error, status, message } = useSelector((state) => state.auth);
+
+  const cookie = new Cookies();
+  const token = cookie.get("access_token");
+  useEffect(() => {
+    if (!user && token) {
+      dispatch(getAuthenticatedUser());
+    }
+  }, [user, token]);
   return (
     <>
       <Routes>

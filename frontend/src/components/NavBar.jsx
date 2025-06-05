@@ -11,6 +11,7 @@ import {
   ListItemText,
   Stack,
   Toolbar,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import { useState } from "react";
@@ -18,11 +19,17 @@ import MenuIcon from "@mui/icons-material/Menu";
 import QuizIcon from "@mui/icons-material/Quiz";
 import RuleIcon from "@mui/icons-material/Rule";
 import EditNoteIcon from "@mui/icons-material/EditNote";
-import { NavLink } from "react-router-dom";
+import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
+import { NavLink, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { logout } from "../store/slices/auth/authSlice";
 
 const NavBar = () => {
   const [drawerIsVisible, setDrawerIsVisible] = useState(false);
+  const { user } = useSelector((state) => state.auth);
 
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const links = [
     {
       name: "Tests",
@@ -40,15 +47,10 @@ const NavBar = () => {
       icon: <EditNoteIcon />,
     },
   ];
-
-  const appBarBtns = [
-    {
-      name: "menu button",
-      icon: <MenuIcon />,
-      action: () => setDrawerIsVisible(true),
-      isPrivate: false,
-    },
-  ];
+  const handleClick = async () => {
+    await dispatch(logout());
+    navigate("/");
+  };
   return (
     <nav>
       <AppBar
@@ -112,25 +114,68 @@ const NavBar = () => {
               );
             })}
           </Stack>
-          <Stack direction="row" spacing={1}>
-            {appBarBtns.map((btn) => {
-              return (
-                <IconButton
-                  key={btn.name}
-                  aria-label={btn.name}
-                  sx={{
-                    color: "white",
-                    ":hover": { backgroundColor: "rgba(255, 255, 255, 0.2)" },
-                    display: {
-                      md: `${btn.name === "menu button" && "none"}`,
-                    },
-                  }}
-                  onClick={() => btn.action()}
-                >
-                  {btn.icon}
-                </IconButton>
-              );
-            })}
+          <Stack direction="row" spacing={1} alignItems="center">
+            <Typography
+              sx={{
+                display: {
+                  xs: "none",
+                  md: "block",
+                },
+              }}
+              variant="h6"
+            >
+              {user?.first_name}
+            </Typography>
+
+            <IconButton
+              sx={{
+                color: "white",
+                display: { xs: "none", md: "flex" },
+                alignItems: "center",
+                cursor: "pointer",
+              }}
+              key="logout"
+              aria-label="logout"
+              onClick={handleClick}
+            >
+              <LogoutRoundedIcon />
+            </IconButton>
+          </Stack>
+          <Stack
+            direction="row"
+            spacing={1}
+            sx={{
+              display: {
+                md: "none",
+              },
+            }}
+          >
+            <Tooltip title="Logout" arrow>
+              <IconButton
+                sx={{
+                  color: "white",
+                  display: { xs: "flex", md: "none" },
+                  alignItems: "center",
+                  cursor: "pointer",
+                }}
+                key="logout"
+                aria-label="logout"
+                onClick={handleClick}
+              >
+                <LogoutRoundedIcon />
+              </IconButton>
+            </Tooltip>
+            <IconButton
+              key={"menu button"}
+              aria-label={"menu button"}
+              sx={{
+                color: "white",
+                ":hover": { backgroundColor: "rgba(255, 255, 255, 0.2)" },
+              }}
+              onClick={() => setDrawerIsVisible(true)}
+            >
+              {<MenuIcon />}
+            </IconButton>
           </Stack>
         </Toolbar>
       </AppBar>
@@ -148,12 +193,14 @@ const NavBar = () => {
           }}
         >
           <Typography
-            variant="h5"
-            sx={{ fontWeight: "500", padding: "1rem", color: "white" }}
+            variant="h6"
+            sx={{ fontWeight: "500", color: "white", padding: "1rem" }}
           >
-            Menu
+            {user?.first_name}
           </Typography>
+
           <Divider sx={{ backgroundColor: "white" }} />
+
           {links.map((link) => {
             return (
               <ListItem key={link.name}>
