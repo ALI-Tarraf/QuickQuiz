@@ -65,6 +65,38 @@ public function getTeacherExamResultsById($examId)
         'results' => $formattedResults
     ]);
 }
+public function getTeacherExamResults()
+{
+    $user = Auth::user();
+    $teacher = Teacher::where('user_id', $user->id)->first();
+
+    if (!$teacher) {
+        return response()->json(['error' => 'لم يتم العثور على المدرّس'], 404);
+    }
+
+    // جلب الامتحانات التي لها نتائج
+    $exams = Exam::where('teacher_id', $teacher->id)
+        ->whereHas('results')
+        ->get();
+
+    if ($exams->isEmpty()) {
+        return response()->json(['error' => 'لا يوجد امتحانات منتهية بعد'], 404);
+    }
+
+    // تجهيز الرد مع المعلومات الأساسية فقط
+    $response = $exams->map(function ($exam) {
+        return [
+            'exam_id' => $exam->id,
+            'title' => $exam->title,
+            'date' => $exam->date,
+            'time' => $exam->time,
+            'total_marks' => $exam->total_marks,
+            'duration' => $exam->duration_minutes
+        ];
+    });
+
+    return response()->json($response);
+}
 
 
 }

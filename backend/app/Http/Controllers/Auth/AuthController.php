@@ -67,7 +67,6 @@ class AuthController extends Controller
                     'role' => $user->role,
                 ],
                 'access_token' => $accessToken,
-
                 'token_type' => 'bearer',
                 'expires_in' => JWTAuth::factory()->getTTL() * 60
             ], 201);
@@ -96,7 +95,7 @@ class AuthController extends Controller
             'user' => [
                 'id' => $user->id,
                 'first_name' => $user->first_name,
-                'email' => $user->email,
+                'last_name' => $user->first_name,
                 'role' => $user->role,
             ],
             'access_token' => $token,

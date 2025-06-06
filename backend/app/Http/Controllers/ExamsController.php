@@ -14,11 +14,24 @@ class ExamsController extends Controller
 {
     public function index()
     {
-        $exams = Exam::all();
+        $exams = Exam::with('teacher.user')->get();
 
-        return response()->json([
-            'exams' => $exams
-        ]);
+        $exams = $exams->map(function ($exam) {
+        return [
+            'id' => $exam->id,
+            'title' => $exam->title,
+            'total_marks' => $exam->total_marks,
+            'duration_minutes' => $exam->duration_minutes,
+            'date' => $exam->date,
+            'time' => $exam->time,
+            'teacher_name' => $exam->teacher?->user?->first_name . ' ' . $exam->teacher?->user?->last_name,
+        ];
+    });
+
+    return response()->json([
+        'exams' => $exams
+    ]);
+
     }
   public function create(Request $request)
 {

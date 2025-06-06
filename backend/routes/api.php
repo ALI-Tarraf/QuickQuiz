@@ -48,6 +48,7 @@ Route::middleware(['auth:api','role:teacher'])->group(function () {
     Route::prefix('exams')->group(function () {
     Route::post('/', [ExamsController::class, 'create']);
     Route::get('/', [ExamsController::class, 'index']);
+    Route::get('/results', [ExamResultController::class, 'getTeacherExamResults']);
    Route::get('/{examId}/results', [ExamResultController::class, 'getTeacherExamResultsById']);
 
     Route::get('/questions', [ExamsController::class, 'getQuestions']);
