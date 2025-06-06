@@ -19,16 +19,26 @@ class ExamResultController extends Controller
 
 public function getStudentResults()
 {
+    $user = Auth::user();
+    $student = Student::where('user_id', $user->id)->first();
 
-  $user = User::where('id',Auth::id())->first();
-  $student = Student::where('user_id',$user->id)->first();
-  $results = ExamResult::where('student_id',$student->id)->get();
+    $results = ExamResult::where('student_id', $student->id)
+        ->with(['exam', 'student.user'])  // جلب العلاقات
+        ->get()
+        ->map(function ($result) {
+            return [
+                'student_name' => $result->student->user->first_name .' '.$result->student->user->last_name,
+                'exam_title' => $result->exam->title,
+                'total_marks' => $result->exam->total_marks,
+                'score' => $result->score,
+            ];
+        });
+
     return response()->json([
-            'Results' => $results
-        ]);
-
-
+        'results' => $results
+    ]);
 }
+
 public function getTeacherExamResultsById($examId)
 {
     $user = Auth::user();
