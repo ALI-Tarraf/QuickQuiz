@@ -63,12 +63,12 @@ class AuthController extends Controller
                 'user' => [
                     'id' => $user->id,
                     'first_name' => $user->first_name,
+                    'last_name' => $user->last_name,
                     'email' => $user->email,
                     'role' => $user->role,
                 ],
                 'access_token' => $accessToken,
-                'token_type' => 'bearer',
-                'expires_in' => JWTAuth::factory()->getTTL() * 60
+
             ], 201);
 
         } catch (\Exception $e) {
@@ -95,12 +95,11 @@ class AuthController extends Controller
             'user' => [
                 'id' => $user->id,
                 'first_name' => $user->first_name,
-                'last_name' => $user->first_name,
+                'last_name' => $user->last_name,
                 'role' => $user->role,
             ],
             'access_token' => $token,
-            'token_type' => 'bearer',
-            'expires_in' => JWTAuth::factory()->getTTL() * 60
+
         ]);
     }
 
