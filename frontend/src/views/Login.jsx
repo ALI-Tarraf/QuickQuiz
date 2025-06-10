@@ -8,6 +8,7 @@ import { login } from "../store/slices/auth/authSlice";
 import {
   Box,
   Button,
+  CircularProgress,
   IconButton,
   InputAdornment,
   Stack,
@@ -76,97 +77,108 @@ const Login = () => {
           onSubmit={submitHandler}
         >
           {(props) => (
-            <Form>
-              <Box
-                component="div"
-                sx={{
-                  justifyContent: "center",
-                  alignItems: "center",
-                  display: "flex",
-                  flexDirection: "column",
-                  minWidth: { xs: "100%", sm: "400px" },
-                  minHeight: "400px",
-                  padding: "1rem",
-                  bgcolor: "rgba(240, 248, 255, 0.8)",
-                  borderRadius: 7,
-                }}
-              >
-                <Typography variant="h6" sx={{ textAlign: "center", mb: 4 }}>
-                  Login to your account
-                </Typography>
-
-                <Stack direction="column" spacing={3.5}>
-                  <TextField
-                    name="email"
-                    id="email"
-                    label="Email"
-                    variant="standard"
-                    fullWidth
-                    onChange={(event) => {
-                      props.values.email = event.target.value;
-                    }}
-                    error={!!props.errors.email}
-                    helperText={props.errors.email ? props.errors.email : ""}
-                  />
-                  <TextField
-                    name="password"
-                    id="password"
-                    type={showPassword ? "text" : "password"}
-                    label="Password"
-                    variant="standard"
-                    fullWidth
-                    onChange={(event) => {
-                      props.values.password = event.target.value;
-                    }}
-                    error={!!props.errors.password}
-                    helperText={
-                      props.errors.password ? props.errors.password : ""
-                    }
-                    InputProps={{
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          <IconButton
-                            aria-label="toggle password visibility"
-                            onClick={() => setShowPassword(!showPassword)}
-                            edge="end"
-                          >
-                            {showPassword ? <VisibilityOff /> : <Visibility />}
-                          </IconButton>
-                        </InputAdornment>
-                      ),
-                    }}
-                  />
-                  <Button
-                    variant="contained"
-                    type="submit"
-                    fullWidth
-                    sx={{ backgroundColor: "rgba(8,81,98,1)" }}
-                  >
-                    {isLoading ? "Loading..." : "Login"}
-                  </Button>
-                </Stack>
-                <Typography
-                  variant="subtitle2"
+            <Box sx={{ padding: "1rem", width: { xs: "100%", sm: "auto" } }}>
+              <Form>
+                <Box
+                  component="div"
                   sx={{
-                    textAlign: "center",
-                    marginTop: 3.5,
+                    justifyContent: "center",
+                    alignItems: "center",
+                    display: "flex",
+                    flexDirection: "column",
+                    minWidth: { xs: "100%", sm: "400px" },
+                    minHeight: "400px",
+                    padding: "1rem",
+                    bgcolor: "rgba(240, 248, 255, 0.8)",
+                    borderRadius: 7,
                   }}
                 >
-                  <Box component="span">{`Don't have an account? `}</Box>
-                  <NavLink to="/signup" style={{ textDecoration: "none" }}>
-                    <Box
-                      component="span"
-                      sx={{
-                        color: "black",
-                        borderBottom: "1px solid",
+                  <Typography variant="h6" sx={{ textAlign: "center", mb: 4 }}>
+                    Login to your account
+                  </Typography>
+
+                  <Stack direction="column" spacing={3.5}>
+                    <TextField
+                      name="email"
+                      id="email"
+                      label="Email"
+                      variant="standard"
+                      fullWidth
+                      onChange={(event) => {
+                        props.values.email = event.target.value;
                       }}
+                      error={!!props.errors.email}
+                      helperText={props.errors.email ? props.errors.email : ""}
+                    />
+                    <TextField
+                      name="password"
+                      id="password"
+                      type={showPassword ? "text" : "password"}
+                      label="Password"
+                      variant="standard"
+                      fullWidth
+                      onChange={(event) => {
+                        props.values.password = event.target.value;
+                      }}
+                      error={!!props.errors.password}
+                      helperText={
+                        props.errors.password ? props.errors.password : ""
+                      }
+                      InputProps={{
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            <IconButton
+                              aria-label="toggle password visibility"
+                              onClick={() => setShowPassword(!showPassword)}
+                              edge="end"
+                            >
+                              {showPassword ? (
+                                <VisibilityOff />
+                              ) : (
+                                <Visibility />
+                              )}
+                            </IconButton>
+                          </InputAdornment>
+                        ),
+                      }}
+                    />
+                    <Button
+                      variant="contained"
+                      type="submit"
+                      fullWidth
+                      sx={{ backgroundColor: "rgba(8,81,98,1)" }}
+                      startIcon={
+                        isLoading ? (
+                          <CircularProgress size={20} color="inherit" />
+                        ) : null
+                      }
                     >
-                      Sign Up
-                    </Box>
-                  </NavLink>
-                </Typography>
-              </Box>
-            </Form>
+                      {isLoading ? "Loading..." : "Login"}
+                    </Button>
+                  </Stack>
+                  <Typography
+                    variant="subtitle2"
+                    sx={{
+                      textAlign: "center",
+                      marginTop: 3.5,
+                    }}
+                  >
+                    <Box component="span">{`Don't have an account? `}</Box>
+                    <NavLink to="/signup" style={{ textDecoration: "none" }}>
+                      <Box
+                        component="span"
+                        sx={{
+                          color: "black",
+                          borderBottom: "1px solid",
+                        }}
+                      >
+                        Sign Up
+                      </Box>
+                    </NavLink>
+                  </Typography>
+                </Box>
+              </Form>
+            </Box>
           )}
         </Formik>
       </Box>

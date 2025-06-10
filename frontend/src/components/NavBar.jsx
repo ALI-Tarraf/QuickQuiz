@@ -35,16 +35,19 @@ const NavBar = () => {
       name: "Tests",
       path: "/testspage",
       icon: <QuizIcon />,
+      private: false,
     },
     {
       name: "Test Results",
       path: "/testresults",
       icon: <RuleIcon />,
+      private: false,
     },
     {
       name: "Create Test",
       path: "/createtest",
       icon: <EditNoteIcon />,
+      private: true,
     },
   ];
   const handleClick = async () => {
@@ -56,7 +59,7 @@ const NavBar = () => {
       <AppBar
         position="sticky"
         sx={{
-          background: "#1F2937",
+          background: "#272727",
           padding: "10px",
           borderBottom: "1px solid black",
           boxShadow: "none",
@@ -86,33 +89,65 @@ const NavBar = () => {
             sx={{ display: { xs: "none", md: "flex" } }}
           >
             {links.map((link) => {
-              return (
-                <NavLink
-                  to={link.path}
-                  key={link.name}
-                  style={({ isActive }) => {
-                    return {
-                      borderRadius: isActive ? "5px" : "",
-                      background: isActive ? "rgba(255, 255, 255, 0.3)" : "",
-                    };
-                  }}
-                >
-                  <Button
-                    aria-label={link.name}
-                    variant="text"
-                    startIcon={link.icon}
-                    sx={{
-                      color: "white",
-                      ":hover": { backgroundColor: "rgba(255, 255, 255, 0.1)" },
+              if (!link.private) {
+                return (
+                  <NavLink
+                    to={link.path}
+                    key={link.name}
+                    style={({ isActive }) => {
+                      return {
+                        borderRadius: isActive ? "5px" : "",
+                        background: isActive ? "rgba(255, 255, 255, 0.3)" : "",
+                      };
                     }}
                   >
-                    <Typography variant="body3" sx={{ fontWeight: "500" }}>
-                      {link.name}
-                    </Typography>
-                  </Button>
-                </NavLink>
-              );
+                    <Button
+                      aria-label={link.name}
+                      variant="text"
+                      startIcon={link.icon}
+                      sx={{
+                        color: "white",
+                        ":hover": {
+                          backgroundColor: "rgba(255, 255, 255, 0.1)",
+                        },
+                      }}
+                    >
+                      <Typography variant="body3" sx={{ fontWeight: "500" }}>
+                        {link.name}
+                      </Typography>
+                    </Button>
+                  </NavLink>
+                );
+              }
             })}
+            {user?.role === "teacher" && (
+              <NavLink
+                to={"/createtest"}
+                key={"Create Test"}
+                style={({ isActive }) => {
+                  return {
+                    borderRadius: isActive ? "5px" : "",
+                    background: isActive ? "rgba(255, 255, 255, 0.3)" : "",
+                  };
+                }}
+              >
+                <Button
+                  aria-label={"Create Test"}
+                  variant="text"
+                  startIcon={<EditNoteIcon />}
+                  sx={{
+                    color: "white",
+                    ":hover": {
+                      backgroundColor: "rgba(255, 255, 255, 0.1)",
+                    },
+                  }}
+                >
+                  <Typography variant="body3" sx={{ fontWeight: "500" }}>
+                    Create Test
+                  </Typography>
+                </Button>
+              </NavLink>
+            )}
           </Stack>
           <Stack direction="row" spacing={1} alignItems="center">
             <Typography
@@ -124,22 +159,24 @@ const NavBar = () => {
               }}
               variant="h6"
             >
-              {user?.first_name}
+              {user?.role === "teacher" ? "Mr. " : ""}
+              {user?.first_name.toUpperCase()} {user?.last_name.toUpperCase()}
             </Typography>
-
-            <IconButton
-              sx={{
-                color: "white",
-                display: { xs: "none", md: "flex" },
-                alignItems: "center",
-                cursor: "pointer",
-              }}
-              key="logout"
-              aria-label="logout"
-              onClick={handleClick}
-            >
-              <LogoutRoundedIcon />
-            </IconButton>
+            <Tooltip title="Logout" arrow>
+              <IconButton
+                sx={{
+                  color: "white",
+                  display: { xs: "none", md: "flex" },
+                  alignItems: "center",
+                  cursor: "pointer",
+                }}
+                key="logout"
+                aria-label="logout"
+                onClick={handleClick}
+              >
+                <LogoutRoundedIcon />
+              </IconButton>
+            </Tooltip>
           </Stack>
           <Stack
             direction="row"
@@ -189,14 +226,15 @@ const NavBar = () => {
             height: "100%",
             minWidth: "275px",
             paddingTop: "1rem",
-            background: "#1F2937",
+            background: "#272727",
           }}
         >
           <Typography
             variant="h6"
             sx={{ fontWeight: "500", color: "white", padding: "1rem" }}
           >
-            {user?.first_name}
+            {user?.role === "teacher" ? "Mr. " : ""}
+            {user?.first_name.toUpperCase()} {user?.last_name.toUpperCase()}
           </Typography>
 
           <Divider sx={{ backgroundColor: "white" }} />

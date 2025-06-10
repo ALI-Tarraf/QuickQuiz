@@ -81,7 +81,7 @@ const TestCard = ({ value, isInResultsPage = false }) => {
                   gap: "5px",
                 }}
               >
-                <CalendarMonthIcon /> <Typography>Date:</Typography> {date}
+                <CalendarMonthIcon /> {`Date: ${date}`}
               </Typography>
               <Typography
                 variant="body1"
@@ -92,7 +92,7 @@ const TestCard = ({ value, isInResultsPage = false }) => {
                   gap: "5px",
                 }}
               >
-                <AccessTimeIcon /> <Typography>Time:</Typography> {time}
+                <AccessTimeIcon /> {`Time: ${time}`}
               </Typography>
             </Stack>
             {isInResultsPage ? (
@@ -107,8 +107,9 @@ const TestCard = ({ value, isInResultsPage = false }) => {
                   gap: "5px",
                 }}
               >
-                <AccountCircleIcon /> <Typography>Instructor:</Typography>
-                {instructor}
+                <AccountCircleIcon />{" "}
+                {`Instructor:
+                ${instructor}`}
               </Typography>
             )}
 
@@ -116,8 +117,9 @@ const TestCard = ({ value, isInResultsPage = false }) => {
               variant="body1"
               sx={{ mb: 1, display: "flex", alignItems: "center", gap: "5px" }}
             >
-              <DescriptionIcon /> <Typography>Total Marks:</Typography>
-              {totalMarks}
+              <DescriptionIcon />{" "}
+              {`Total Marks: 
+              ${totalMarks}`}
             </Typography>
           </Box>
 
@@ -130,7 +132,7 @@ const TestCard = ({ value, isInResultsPage = false }) => {
               variant="body2"
               sx={{ display: "flex", alignItems: "center", gap: "5px" }}
             >
-              <TimerOutlinedIcon /> Duration: {duration}
+              <TimerOutlinedIcon /> {`Duration: ${duration}`}
             </Typography>
             <Button
               variant="contained"

@@ -10,8 +10,9 @@ export const register = createAsyncThunk(
     const { rejectWithValue } = thunkAPI;
     try {
       const res = await axios.post(`/register`, params);
-      if (res.status === 200) {
-        cookie.set("access_token", res.data.access_token);
+      if (res.status === 201) {
+        // cookie.set("access_token", res.data.access_token);
+        localStorage.setItem("access_token", res.data.access_token);
         return {
           data: res.data,
         };
@@ -29,12 +30,14 @@ export const login = createAsyncThunk(
     try {
       const res = await axios.post(`/login`, params);
       if (res.status === 200) {
-        cookie.set("access_token", res.data.access_token);
+        // cookie.set("access_token", res.data.access_token);
+        localStorage.setItem("access_token", res.data.access_token);
         return {
           data: res.data,
         };
       }
     } catch (error) {
+      console.log(error);
       return rejectWithValue(error);
     }
   }
@@ -45,7 +48,8 @@ export const logout = createAsyncThunk("auth/logout", async (_, thunkAPI) => {
   try {
     const res = await axios.post(`/logout`);
     if (res.status === 200) {
-      cookie.remove("access_token");
+      // cookie.remove("access_token");
+      localStorage.removeItem("access_token");
 
       return {
         data: res.data,
@@ -61,7 +65,7 @@ export const getAuthenticatedUser = createAsyncThunk(
   async (_, thunkAPI) => {
     const { rejectWithValue } = thunkAPI;
     try {
-      const res = await axios.get(`/user`);
+      const res = await axios.get("/user");
       if (res.status === 200) {
         return {
           data: res.data,
@@ -111,7 +115,9 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.error = action.payload;
         state.status = true;
-        state.message = "There is an error, please try again later";
+        state.message =
+          action.payload.response.data.email[0] ||
+          "There is an error, please try again later";
       });
     // login
     builder

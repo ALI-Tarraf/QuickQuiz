@@ -11,6 +11,7 @@ import {
   useTheme,
   ToggleButtonGroup,
   ToggleButton,
+  Typography,
 } from "@mui/material";
 
 import { useEffect, useState } from "react";
@@ -79,125 +80,137 @@ const StudentTestResults = () => {
   }, [filter]);
 
   return (
-    <Box sx={{ p: { xs: 1, sm: 2, md: 4 } }}>
-      <ToggleButtonGroup
-        value={filter}
-        exclusive
-        onChange={handleFilterChange}
-        sx={{ py: { xs: 3, md: 5 } }}
+    <>
+      <Typography
+        sx={{
+          fontWeight: { xs: 600, md: "bold" },
+          fontSize: { xs: "1.6rem", sm: "2rem ", lg: "2.3rem" },
+          pt: 4,
+          textAlign: "center",
+        }}
       >
-        <ToggleButton value="all">All</ToggleButton>
-        <ToggleButton value="pass">Passed</ToggleButton>
-        <ToggleButton value="fail">Failed</ToggleButton>
-      </ToggleButtonGroup>
-      <TableContainer component={Paper}>
-        <Table size={isMobile ? "small" : "medium"}>
-          <TableHead sx={{ borderBottom: "2px solid black" }}>
-            <TableRow
-              sx={{
-                backgroundColor: "rgba(0, 0, 0, 0.1)",
-              }}
-            >
-              <TableCell
-                align="center"
-                sx={{
-                  fontSize: { xs: "17px", md: "25px" },
-                  fontWeight: "bold",
-                }}
-              >
-                Name
-              </TableCell>
-              <TableCell
-                align="center"
-                sx={{
-                  fontSize: { xs: "17px", md: "25px" },
-                  fontWeight: "bold",
-                }}
-              >
-                ID
-              </TableCell>
-              <TableCell
-                align="center"
-                sx={{
-                  fontSize: { xs: "17px", md: "25px" },
-                  fontWeight: "bold",
-                }}
-              >
-                Score/Total score
-              </TableCell>
-              <TableCell
-                align="center"
-                sx={{
-                  fontSize: { xs: "17px", md: "25px" },
-                  fontWeight: "bold",
-                }}
-              >
-                Percentage
-              </TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {filteredStudents?.map((student) => (
+        Test Results
+      </Typography>
+      <Box sx={{ p: { xs: 1, sm: 2, md: 4 } }}>
+        <ToggleButtonGroup
+          value={filter}
+          exclusive
+          onChange={handleFilterChange}
+          sx={{ py: { xs: 3, md: 5 } }}
+        >
+          <ToggleButton value="all">All</ToggleButton>
+          <ToggleButton value="pass">Passed</ToggleButton>
+          <ToggleButton value="fail">Failed</ToggleButton>
+        </ToggleButtonGroup>
+        <TableContainer component={Paper}>
+          <Table size={isMobile ? "small" : "medium"}>
+            <TableHead sx={{ borderBottom: "2px solid black" }}>
               <TableRow
                 sx={{
-                  backgroundColor:
-                    (student.score / student.total) * 100 >= 60
-                      ? "rgba(172, 255, 47, 0.306)"
-                      : "rgb(255, 0, 0,0.306)",
-                  borderBottom: "2px solid rgba(128, 128, 128, 0.702)",
+                  backgroundColor: "rgba(0, 0, 0, 0.1)",
                 }}
-                key={student.id}
               >
                 <TableCell
                   align="center"
                   sx={{
-                    fontSize: { xs: "15px", md: "17px" },
-                    fontWeight: { xs: 400, md: 500 },
+                    fontSize: { xs: "17px", md: "25px" },
+                    fontWeight: "bold",
                   }}
                 >
-                  {student.testname}
+                  Name
                 </TableCell>
                 <TableCell
                   align="center"
                   sx={{
-                    fontSize: { xs: "15px", md: "17px" },
-                    fontWeight: { xs: 400, md: 500 },
+                    fontSize: { xs: "17px", md: "25px" },
+                    fontWeight: "bold",
                   }}
                 >
-                  {student.id}
+                  ID
                 </TableCell>
                 <TableCell
                   align="center"
                   sx={{
-                    fontSize: { xs: "15px", md: "17px" },
-                    fontWeight: { xs: 400, md: 500 },
-                    color:
-                      (student.score / student.total) * 100 >= 60
-                        ? "green"
-                        : "red",
+                    fontSize: { xs: "17px", md: "25px" },
+                    fontWeight: "bold",
                   }}
                 >
-                  {student.score}/{student.total}
+                  Score/Total score
                 </TableCell>
                 <TableCell
                   align="center"
                   sx={{
-                    fontSize: { xs: "15px", md: "17px" },
-                    fontWeight: { xs: 400, md: 500 },
-                    color:
-                      (student.score / student.total) * 100 >= 60
-                        ? "green"
-                        : "red",
+                    fontSize: { xs: "17px", md: "25px" },
+                    fontWeight: "bold",
                   }}
                 >
-                  {((student.score / student.total) * 100).toFixed(1)}%
+                  Percentage
                 </TableCell>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    </Box>
+            </TableHead>
+            <TableBody>
+              {filteredStudents?.map((student) => (
+                <TableRow
+                  sx={{
+                    backgroundColor:
+                      (student.score / student.total) * 100 >= 60
+                        ? "rgba(172, 255, 47, 0.306)"
+                        : "rgb(255, 0, 0,0.306)",
+                    borderBottom: "2px solid rgba(128, 128, 128, 0.702)",
+                  }}
+                  key={student.id}
+                >
+                  <TableCell
+                    align="center"
+                    sx={{
+                      fontSize: { xs: "15px", md: "17px" },
+                      fontWeight: { xs: 400, md: 500 },
+                    }}
+                  >
+                    {student.testname}
+                  </TableCell>
+                  <TableCell
+                    align="center"
+                    sx={{
+                      fontSize: { xs: "15px", md: "17px" },
+                      fontWeight: { xs: 400, md: 500 },
+                    }}
+                  >
+                    {student.id}
+                  </TableCell>
+                  <TableCell
+                    align="center"
+                    sx={{
+                      fontSize: { xs: "15px", md: "17px" },
+                      fontWeight: { xs: 400, md: 500 },
+                      color:
+                        (student.score / student.total) * 100 >= 60
+                          ? "green"
+                          : "red",
+                    }}
+                  >
+                    {student.score}/{student.total}
+                  </TableCell>
+                  <TableCell
+                    align="center"
+                    sx={{
+                      fontSize: { xs: "15px", md: "17px" },
+                      fontWeight: { xs: 400, md: 500 },
+                      color:
+                        (student.score / student.total) * 100 >= 60
+                          ? "green"
+                          : "red",
+                    }}
+                  >
+                    {((student.score / student.total) * 100).toFixed(1)}%
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Box>
+    </>
   );
 };
 

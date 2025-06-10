@@ -1,6 +1,6 @@
 import { Formik, Form, ErrorMessage } from "formik";
 import * as Yup from "yup";
-import NavBar from "../components/NavBar";
+
 import {
   Box,
   Button,
@@ -79,9 +79,8 @@ function CreateTest() {
         {({ values, setFieldValue, errors }) => (
           <Form>
             <Typography
-              paddingBottom={2}
-              paddingTop={2}
               sx={{
+                py: 2,
                 fontWeight: "500",
                 fontSize: {
                   xs: "h3.fontSize",
