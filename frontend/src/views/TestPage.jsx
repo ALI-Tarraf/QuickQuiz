@@ -99,7 +99,7 @@ const TestPage = () => {
           alignItems: "center",
           position: "sticky",
           top: 0,
-          backgroundColor: "#1F2937",
+          backgroundColor: "#272727",
           zIndex: 1000,
         }}
       >

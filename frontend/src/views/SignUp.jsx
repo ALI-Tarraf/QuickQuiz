@@ -9,6 +9,7 @@ import {
   Box,
   Button,
   Checkbox,
+  CircularProgress,
   IconButton,
   InputAdornment,
   Stack,
@@ -67,13 +68,13 @@ const Signup = () => {
     delete values["confirm_password"];
     if (!values.is_teacher) {
       delete values["spec"];
-      // console.log({
-      //   first_name: values.first_name,
-      //   last_name: values.last_name,
-      //   email: values.email,
-      //   password: values.password,
-      //   role: "student",
-      // });
+      console.log({
+        first_name: values.first_name,
+        last_name: values.last_name,
+        email: values.email,
+        password: values.password,
+        role: "student",
+      });
       dispatch(
         register({
           first_name: values.first_name,
@@ -83,16 +84,15 @@ const Signup = () => {
           role: "student",
         })
       );
-    }
-    if (values.is_teacher) {
-      // console.log({
-      //   first_name: values.first_name,
-      //   last_name: values.last_name,
-      //   email: values.email,
-      //   password: values.password,
-      //   role: "teacher",
-      //   spec: values.spec,
-      // });
+    } else {
+      console.log({
+        first_name: values.first_name,
+        last_name: values.last_name,
+        email: values.email,
+        password: values.password,
+        role: "teacher",
+        specialization: values.spec,
+      });
       dispatch(
         register({
           first_name: values.first_name,
@@ -309,8 +309,13 @@ const Signup = () => {
                       type="submit"
                       fullWidth
                       sx={{ backgroundColor: "rgba(8,81,98,1)" }}
+                      startIcon={
+                        isLoading ? (
+                          <CircularProgress size={20} color="inherit" />
+                        ) : null
+                      }
                     >
-                      {"Register"}
+                      {isLoading ? "Loading..." : "Register"}
                     </Button>
                   </Stack>
                 </Box>
