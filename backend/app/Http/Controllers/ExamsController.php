@@ -14,7 +14,7 @@ class ExamsController extends Controller
 {
     public function index()
     {
-        $exams = Exam::with('teacher.user')->get();
+        $exams = Exam::all();
 
         $exams = $exams->map(function ($exam) {
         return [
