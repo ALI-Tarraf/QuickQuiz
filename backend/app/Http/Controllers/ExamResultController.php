@@ -27,7 +27,7 @@ public function getStudentResults()
         ->get()
         ->map(function ($result) {
             return [
-                'id' => $result->student->user->id ,
+                'id' =>$result->exam->id ,
                 'exam_title' => $result->exam->title,
                 'total_marks' => $result->exam->total_marks,
                 'score' => $result->score,
