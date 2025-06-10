@@ -101,7 +101,7 @@ public function getTeacherExamResults()
             'date' => $exam->date,
             'time' => $exam->time,
             'total_marks' => $exam->total_marks,
-            'duration' => $exam->duration_minutes
+            'duration_minutes' => $exam->duration_minutes
         ];
     });
 

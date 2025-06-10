@@ -28,7 +28,7 @@ Route::middleware(['auth:api', 'role:student'])->group(function () {
     Route::get('/student/dashboard', [StudentController::class, 'dashboard']);
     Route::get('/student/profile', [StudentController::class, 'profile']);
 
-    Route::prefix('/student/exams')->group(function () {
+    Route::prefix('/student/tests')->group(function () {
     Route::post('/answer/{examId}', [StudentAnswersController::class, 'create']);
     Route::get('/results', [ExamResultController::class, 'getStudentResults']);
     Route::get('/{id}', [ExamsController::class, 'show']);
@@ -49,7 +49,7 @@ Route::middleware(['auth:api','role:teacher'])->group(function () {
     Route::post('/', [ExamsController::class, 'create']);
     Route::get('/', [ExamsController::class, 'index']);
     Route::get('/results', [ExamResultController::class, 'getTeacherExamResults']);
-   Route::get('/{examId}/results', [ExamResultController::class, 'getTeacherExamResultsById']);
+   Route::get('/results/{examId}', [ExamResultController::class, 'getTeacherExamResultsById']);
 
     Route::get('/questions', [ExamsController::class, 'getQuestions']);
     Route::get('/{id}', [ExamsController::class, 'show']);
