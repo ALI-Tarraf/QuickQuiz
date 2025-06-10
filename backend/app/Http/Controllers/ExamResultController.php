@@ -96,7 +96,7 @@ public function getTeacherExamResults()
     // تجهيز الرد مع المعلومات الأساسية فقط
     $response = $exams->map(function ($exam) {
         return [
-            'test_id' => $exam->id,
+            'id' => $exam->id,
             'title' => $exam->title,
             'date' => $exam->date,
             'time' => $exam->time,
