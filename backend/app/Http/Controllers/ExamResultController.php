@@ -69,7 +69,7 @@ public function getTeacherExamResultsById($examId)
     });
 
     return response()->json([
-        'exam_id' => $exam->id,
+        'test_id' => $exam->id,
         'exam_title' => $exam->title,
 
         'results' => $formattedResults
@@ -96,7 +96,7 @@ public function getTeacherExamResults()
     // تجهيز الرد مع المعلومات الأساسية فقط
     $response = $exams->map(function ($exam) {
         return [
-            'exam_id' => $exam->id,
+            'test_id' => $exam->id,
             'title' => $exam->title,
             'date' => $exam->date,
             'time' => $exam->time,
