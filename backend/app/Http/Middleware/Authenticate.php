@@ -9,7 +9,7 @@ class Authenticate extends Middleware
     protected function redirectTo($request)
     {
         if (! $request->expectsJson()) {
-            abort(response()->json(['message' => 'TOKEN_EXPIRED'], 401));
+            abort(response()->json(['message' => 'Unauthenticated.'], 401));
         }
     }
 }
