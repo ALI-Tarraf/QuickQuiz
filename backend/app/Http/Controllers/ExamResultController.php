@@ -70,7 +70,7 @@ public function getTeacherExamResultsById($examId)
 
     return response()->json([
         'test_id' => $exam->id,
-        'exam_title' => $exam->title,
+        'test_title' => $exam->title,
         'total_marks' => $exam->total_marks,
 
         'participants'=>$formattedResults->count(),
