@@ -60,18 +60,20 @@ public function getTeacherExamResultsById($examId)
     // تنسيق النتائج
     $formattedResults = $results->map(function ($result) use ($exam) {
         return [
+            'id' => $result->id,
             'student_name' => $result->student ? $result->student?->user?->first_name . ' ' . $result->student?->user?->last_name : null,
-            'exam_title'   => $exam->title,
+
             'score'        => $result->score,
-            'started_at'   => $result->started_at,
-            'completed_at' => $result->completed_at,
+
         ];
     });
 
     return response()->json([
         'test_id' => $exam->id,
         'exam_title' => $exam->title,
+        'total_marks' => $exam->total_marks,
 
+        'participants'=>$formattedResults->count(),
         'results' => $formattedResults
     ]);
 }
