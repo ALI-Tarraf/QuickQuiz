@@ -74,7 +74,7 @@ public function getTeacherExamResultsById($examId)
         'total_marks' => $exam->total_marks,
 
         'participants'=>$formattedResults->count(),
-        'results' => $formattedResults
+        'student_results' => $formattedResults
     ]);
 }
 public function getTeacherExamResults()
