@@ -10,7 +10,7 @@ class ExamResult extends Model
     public $timestamps = false;
     protected $fillable = [
 
-        'student_id',
+        'user_id',
         'exam_id',
         'started_at',
         'completed_at',

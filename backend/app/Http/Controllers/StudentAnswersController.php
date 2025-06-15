@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\ExamResultController;
 use App\Models\ExamResult;
+use App\Models\User;
+
 class StudentAnswersController extends Controller
 {
 public function create(Request $request, $examId)
@@ -20,39 +22,39 @@ public function create(Request $request, $examId)
     $savedAnswers = [];
 
     try {
-        $student = Student::where('user_id', Auth::id())->first();
+        $student = User::where('id', Auth::id())->first();
         if (!$student) {
             return response()->json(['message' => 'Student not found'], 404);
         }
 
         foreach ($data as $item) {
-            $question = Question::whereRaw('LOWER(TRIM(question_text)) = ?', [strtolower(trim($item['question']))])
+            $questionId = $item['questionId'] ?? null;
+            $answerId = $item['answerId'] ?? null;
+
+            // التأكد من وجود السؤال وينتمي لنفس الامتحان
+            $question = Question::where('id', $questionId)
                 ->where('exam_id', $examId)
                 ->first();
 
             if (!$question) continue;
 
-            $option = null;
+            // التأكد من أن هذه الإجابة تابعة لنفس السؤال
+            $option = QuestionAnswers::where('id', $answerId)
+                ->where('question_id', $questionId)
+                ->first();
+
             $isCorrect = 0;
             $textAnswer = null;
-            $selectedOptionId = null;
 
-            if (!empty($item['selectedOption'])) {
-                $option = QuestionAnswers::where('question_id', $question->id)
-                    ->whereRaw('LOWER(TRIM(answer_text)) = ?', [strtolower(trim($item['selectedOption']))])
-                    ->first();
-
-                if ($option) {
-                    $isCorrect = $option->is_correct;
-                    $textAnswer = $option->answer_text;
-                    $selectedOptionId = $option->id;
-                }
+            if ($option) {
+                $isCorrect = $option->is_correct;
+                $textAnswer = $option->answer_text;
             }
 
             $savedAnswers[] = StudentAnswer::create([
-                'student_id' => $student->id,
+                'user_id' => $student->id,
                 'question_id' => $question->id,
-                'selected_option_id' => $selectedOptionId,
+                'selected_option_id' => $option?->id,
                 'text_answer' => $textAnswer,
                 'is_correct' => $isCorrect,
             ]);
@@ -73,9 +75,10 @@ public function create(Request $request, $examId)
     }
 }
 
+
 private function saveExamResult($studentId, $examId)
 {
-    $score = StudentAnswer::where('student_id', $studentId)
+    $score = StudentAnswer::where('user_id', $studentId)
         ->where('is_correct', 1)
         ->whereHas('question', function ($query) use ($examId) {
             $query->where('exam_id', $examId);
@@ -87,7 +90,7 @@ private function saveExamResult($studentId, $examId)
         });
 
     ExamResult::updateOrCreate(
-        ['student_id' => $studentId, 'exam_id' => $examId],
+        ['user_id' => $studentId, 'exam_id' => $examId],
         ['score' => $score]
     );
 }
