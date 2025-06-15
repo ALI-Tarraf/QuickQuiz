@@ -152,6 +152,7 @@ const Login = () => {
                           <CircularProgress size={20} color="inherit" />
                         ) : null
                       }
+                      disabled={isLoading ? true : false}
                     >
                       {isLoading ? "Loading..." : "Login"}
                     </Button>

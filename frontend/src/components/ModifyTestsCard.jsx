@@ -3,19 +3,17 @@ import {
   Button,
   Card,
   CardContent,
-  Chip,
   Stack,
   Typography,
 } from "@mui/material";
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
-import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import DescriptionIcon from "@mui/icons-material/Description";
 import TimerOutlinedIcon from "@mui/icons-material/TimerOutlined";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
-const TestCard = ({ value, isInResultsPage = false }) => {
-  const { id, title, date, time, teacher_name, duration_minutes, total_marks } =
-    value;
-  const status = date > new Date().toLocaleDateString("en-CA");
+const ModifyTestsCard = ({ value }) => {
+  const { id, title, date, time, duration_minutes, total_marks } = value;
 
   return (
     <>
@@ -46,21 +44,6 @@ const TestCard = ({ value, isInResultsPage = false }) => {
             <Typography variant="h5" fontWeight={700}>
               {title}
             </Typography>
-            {isInResultsPage ? (
-              ""
-            ) : (
-              <Chip
-                label={status ? "Available Now" : "Not Available"}
-                size="small"
-                sx={{
-                  bgcolor: status ? "#D1FAE5" : "#FECACA",
-                  color: status ? "#047857" : "#B91C1C",
-                  fontSize: 12,
-                  fontWeight: 500,
-                  borderRadius: "9999px",
-                }}
-              />
-            )}
           </Box>
           <Box
             sx={{
@@ -94,59 +77,56 @@ const TestCard = ({ value, isInResultsPage = false }) => {
                 <AccessTimeIcon /> {`Time: ${time}`}
               </Typography>
             </Stack>
-            {isInResultsPage ? (
-              ""
-            ) : (
-              <Typography
-                variant="body1"
-                sx={{
-                  mb: 1,
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "5px",
-                }}
-              >
-                <AccountCircleIcon />{" "}
-                {`Instructor:
-                ${teacher_name}`}
-              </Typography>
-            )}
 
             <Typography
               variant="body1"
-              sx={{ mb: 1, display: "flex", alignItems: "center", gap: "5px" }}
+              sx={{
+                mb: 1,
+                display: "flex",
+                alignItems: "center",
+                gap: "5px",
+              }}
             >
               <DescriptionIcon />{" "}
               {`Total Marks: 
               ${total_marks}`}
             </Typography>
-          </Box>
 
-          <Box
-            display="flex"
-            justifyContent="space-between"
-            alignItems="center"
-          >
             <Typography
-              variant="body1"
+              variant="body2"
               sx={{ display: "flex", alignItems: "center", gap: "5px" }}
             >
-              <TimerOutlinedIcon /> {`Duration: ${duration_minutes} minutes`}
+              <TimerOutlinedIcon /> {`Duration: ${duration_minutes}`}
             </Typography>
+          </Box>
+          <Box sx={{ display: "flex", gap: 3, pt: "10px" }}>
             <Button
-              variant="contained"
-              href={isInResultsPage ? `/testresults/${id}` : `/testpage/${id}`}
+              variant="outlined"
+              color="info"
               sx={{
-                bgcolor: "#4F46E5",
-                "&:hover": { bgcolor: "#4338CA" },
                 borderRadius: 2,
                 textTransform: "none",
                 px: 2,
                 py: 1,
+                width: "100%",
               }}
-              disabled={isInResultsPage ? false : status ? false : true}
+              startIcon={<EditIcon />}
             >
-              {isInResultsPage ? "Show Results" : "Start test"}
+              Edit test
+            </Button>
+            <Button
+              variant="contained"
+              color="error"
+              sx={{
+                borderRadius: 2,
+                textTransform: "none",
+                px: 2,
+                py: 1,
+                width: "100%",
+              }}
+              startIcon={<DeleteIcon />}
+            >
+              Delete test
             </Button>
           </Box>
         </CardContent>
@@ -155,4 +135,4 @@ const TestCard = ({ value, isInResultsPage = false }) => {
   );
 };
 
-export default TestCard;
+export default ModifyTestsCard;

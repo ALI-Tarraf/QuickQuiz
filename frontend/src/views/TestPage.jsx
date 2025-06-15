@@ -12,51 +12,13 @@ import {
 import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace";
 
 import Timer from "../components/Timer";
-import { NavLink, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { NavLink, useNavigate, useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
 import TestPageModal from "../components/TestPageModal";
-const questionsData = {
-  testName: "java",
-  questions: [
-    {
-      question: "What is your favorite color?",
-      options: ["Red", "Blue", "Green", "Yellow"],
-      score: "10",
-    },
-    {
-      question: "What is your favorite animal?",
-      options: ["Dog", "Cat", "Bird", "Fish"],
-      score: "15",
-    },
-    {
-      question:
-        "What is your favorite food What is your favorite foodWhat is your favorite foodWhat is your favorite foodWhat is your favorite foodWhat is your favorite foodWhat is your favorite foodWhat is your favorite foodWhat is your favorite food?",
-      options: ["Pizza", "Burger", "Pasta", "Salad"],
-      score: "1",
-    },
-    {
-      question:
-        "What is your favorite food What is your favorite foodWhat is your favorite foodWhat is your favorite foodWhat is your favorite foodWhat is your favorite foodWhat is your favorite foodWhat is your favorite foodWhat is your favorite food?",
-      options: ["Pizza", "Burger", "Pasta", "Salad"],
-      score: "13",
-    },
-    {
-      question: "What is the capital of France?",
-      options: ["Berlin", "Madrid", "Paris", "Rome"],
-      score: "20",
-    },
-    {
-      question: "What is 2 + 2?",
-      options: ["3", "4", "5", "6"],
-      score: "25",
-    },
-    {
-      question: "What is the largest planet in our solar system?",
-      options: ["Earth", "Jupiter", "Mars", "Saturn"],
-      score: "5",
-    },
-  ],
-};
+import { useDispatch, useSelector } from "react-redux";
+import { getQuestions } from "../store/slices/tests/questionsSlice";
+import Loader from "../components/Loader";
+import Errorpage from "../components/ErrorPage";
 
 function shuffleArray(array) {
   const shuffledArray = [...array];
@@ -67,21 +29,34 @@ function shuffleArray(array) {
   return shuffledArray;
 }
 
-const shuffled = shuffleArray(questionsData.questions);
-
 const TestPage = () => {
+  const { isLoading, error, questionsData } = useSelector(
+    (state) => state.questions
+  );
+
+  const { id } = useParams();
+  const [shuffled, setShuffled] = useState([]);
+  const dispatch = useDispatch();
+  useEffect(() => {
+    dispatch(getQuestions(id));
+    console.log(questionsData);
+    setShuffled(
+      shuffleArray(questionsData?.questions && questionsData?.questions)
+    );
+  }, [dispatch, id]);
+
   const [answers, setAnswers] = useState({});
   const result = shuffled.map((item, index) => ({
-    question: item.question,
-    selectedOption: answers[index] || null, // or "" if you prefer
+    questionId: +item.id,
+    answerId: +answers[index] || null,
   }));
-  // const handleSubmit = () => {
-  //   console.log(result); // or send to server via fetch / axios
-  // };
+
   const navigate = useNavigate();
   const handleTimeUp = () => {
     navigate("/testresults", { replace: true });
   };
+  if (isLoading) return <Loader />;
+  if (error) return <Errorpage />;
 
   return (
     <>
@@ -143,7 +118,7 @@ const TestPage = () => {
           >
             <Box sx={{ display: "flex", justifyContent: "space-between" }}>
               <Typography variant="h6" gutterBottom>
-                {item.question}
+                {item.question}?
               </Typography>
               <Typography
                 variant="h6"
@@ -166,7 +141,7 @@ const TestPage = () => {
                     textAlign: "center",
                   }}
                 >
-                  {item.score} pts
+                  {item.mark} pts
                 </Box>
               </Typography>
             </Box>
@@ -180,11 +155,11 @@ const TestPage = () => {
               {item.options.map((option, idx) => (
                 <FormControlLabel
                   key={idx}
-                  value={option}
+                  value={option.id}
                   control={<Radio />}
                   label={
                     <Typography variant="body1" sx={{ fontWeight: "400" }}>
-                      {option}
+                      {option.text}
                     </Typography>
                   }
                 />

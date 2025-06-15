@@ -13,71 +13,45 @@ import {
   ToggleButton,
   Typography,
 } from "@mui/material";
-
+import { getStudentTestResults } from "../store/slices/tests/testsSlice";
 import { useEffect, useState } from "react";
-const studentData = {
-  students: [
-    {
-      testname: "Midterm Exam - CS101",
-      total: 90,
-      id: "1",
-      score: 75,
-    },
-    {
-      testname: "Midterm Exam - CS101",
-      total: 80,
-      id: "123",
-      score: 60,
-    },
-    {
-      testname: "Midterm Exam - CS101",
-      total: 120,
-      id: "1234",
-      score: 75,
-    },
-    {
-      testname: "Midterm Exam - CS101",
-      total: 110,
-      id: "12345",
-      score: 59,
-    },
-    {
-      testname: "Midterm Exam - CS101",
-      total: 75,
-      id: "123456",
-      score: 75,
-    },
-    {
-      testname: "Midterm Exam - CS101",
-      total: 100,
-      id: "12347",
-      score: 40,
-    },
-  ],
-};
+import { useDispatch, useSelector } from "react-redux";
+import Loader from "./Loader";
+import Errorpage from "./ErrorPage";
+
 const StudentTestResults = () => {
+  const { isLoading, error, studentResults } = useSelector(
+    (state) => state.tests
+  );
+
+  const dispatch = useDispatch();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [filter, setFilter] = useState("all");
-  const [filteredStudents, setFilteredStudents] = useState(
-    studentData.students
-  );
+  const [filteredStudents, setFilteredStudents] = useState([]);
 
   const handleFilterChange = (event, newFilter) => {
     if (newFilter !== null) {
       setFilter(newFilter);
     }
   };
+  useEffect(() => {
+    dispatch(getStudentTestResults());
+  }, [dispatch]);
 
   useEffect(() => {
-    const newFiltered = studentData.students.filter((student) => {
-      const percentage = (student.score / student.total) * 100;
+    console.log(studentResults);
+    const newFiltered = studentResults?.filter((student) => {
+      const percentage = (student.score / student.total_marks) * 100;
       if (filter === "pass") return percentage >= 60;
       if (filter === "fail") return percentage < 60;
       return true;
     });
     setFilteredStudents(newFiltered);
-  }, [filter]);
+  }, [filter, studentResults]);
+  if (isLoading) return <Loader />;
+
+  if (error) return <Errorpage />;
 
   return (
     <>
@@ -153,7 +127,7 @@ const StudentTestResults = () => {
                 <TableRow
                   sx={{
                     backgroundColor:
-                      (student.score / student.total) * 100 >= 60
+                      (student.score / student.total_marks) * 100 >= 60
                         ? "rgba(172, 255, 47, 0.306)"
                         : "rgb(255, 0, 0,0.306)",
                     borderBottom: "2px solid rgba(128, 128, 128, 0.702)",
@@ -167,7 +141,7 @@ const StudentTestResults = () => {
                       fontWeight: { xs: 400, md: 500 },
                     }}
                   >
-                    {student.testname}
+                    {student.exam_title}
                   </TableCell>
                   <TableCell
                     align="center"
@@ -184,12 +158,12 @@ const StudentTestResults = () => {
                       fontSize: { xs: "15px", md: "17px" },
                       fontWeight: { xs: 400, md: 500 },
                       color:
-                        (student.score / student.total) * 100 >= 60
+                        (student.score / student.total_marks) * 100 >= 60
                           ? "green"
                           : "red",
                     }}
                   >
-                    {student.score}/{student.total}
+                    {student.score}/{student.total_marks}
                   </TableCell>
                   <TableCell
                     align="center"
@@ -197,12 +171,12 @@ const StudentTestResults = () => {
                       fontSize: { xs: "15px", md: "17px" },
                       fontWeight: { xs: 400, md: 500 },
                       color:
-                        (student.score / student.total) * 100 >= 60
+                        (student.score / student.total_marks) * 100 >= 60
                           ? "green"
                           : "red",
                     }}
                   >
-                    {((student.score / student.total) * 100).toFixed(1)}%
+                    {((student.score / student.total_marks) * 100).toFixed(1)}%
                   </TableCell>
                 </TableRow>
               ))}

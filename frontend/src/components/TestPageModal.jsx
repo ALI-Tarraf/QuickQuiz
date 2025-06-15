@@ -3,6 +3,7 @@ import { Modal, Box, Button, Typography, Stack } from "@mui/material";
 import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined";
 import DoneIcon from "@mui/icons-material/Done";
 import { useNavigate } from "react-router-dom";
+import SendIcon from "@mui/icons-material/Send";
 
 const style = {
   position: "absolute",
@@ -58,6 +59,7 @@ export default function TestPageModal({ result }) {
                   borderRadius: { xs: "5px", md: "8px" },
                 }}
                 onClick={handleSubmit}
+                startIcon={<SendIcon />}
               >
                 Submit
               </Button>
@@ -131,6 +133,7 @@ export default function TestPageModal({ result }) {
             borderRadius: { xs: "5px", md: "8px" },
           }}
           onClick={() => handleOpen("submit")}
+          startIcon={<SendIcon />}
         >
           Submit
         </Button>

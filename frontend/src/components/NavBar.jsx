@@ -1,5 +1,6 @@
 import {
   AppBar,
+  Box,
   Button,
   Divider,
   Drawer,
@@ -20,9 +21,11 @@ import QuizIcon from "@mui/icons-material/Quiz";
 import RuleIcon from "@mui/icons-material/Rule";
 import EditNoteIcon from "@mui/icons-material/EditNote";
 import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
+import DashboardRoundedIcon from "@mui/icons-material/DashboardRounded";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../store/slices/auth/authSlice";
+import logo from "../assets/logo.png";
 
 const NavBar = () => {
   const [drawerIsVisible, setDrawerIsVisible] = useState(false);
@@ -49,6 +52,12 @@ const NavBar = () => {
       icon: <EditNoteIcon />,
       private: true,
     },
+    {
+      name: "Tests Dashboard ",
+      path: "/testsdashboard",
+      icon: <DashboardRoundedIcon />,
+      private: true,
+    },
   ];
   const handleClick = async () => {
     await dispatch(logout());
@@ -60,94 +69,76 @@ const NavBar = () => {
         position="sticky"
         sx={{
           background: "#272727",
-          padding: "10px",
+          py: "7px",
           borderBottom: "1px solid black",
           boxShadow: "none",
         }}
       >
         <Toolbar sx={{ justifyContent: "space-between" }}>
-          <Typography
-            variant="h4"
-            sx={{
-              mr: 2,
-              display: "flex",
-              justifyContent: "start",
-              alignItems: "center",
-              fontWeight: 600,
-              color: "white",
-              fontSize: {
-                xs: "h5.fontSize",
-                sm: "h4.fontSize",
-              },
-            }}
-          >
-            Quick Quiz
-          </Typography>
+          <Stack direction="row" spacing={0}>
+            <Box
+              component="img"
+              src={logo}
+              alt="Online Test Logo"
+              sx={{
+                display: "block",
+                width: { xs: "56px", sm: "64px" },
+              }}
+            />
+
+            <Typography
+              variant="h4"
+              sx={{
+                display: "flex",
+                justifyContent: "start",
+                alignItems: "center",
+                fontWeight: 600,
+                color: "white",
+                fontSize: {
+                  xs: "h5.fontSize",
+                  sm: "h4.fontSize",
+                },
+              }}
+            >
+              Quick Quiz
+            </Typography>
+          </Stack>
           <Stack
             direction="row"
             spacing={4}
             sx={{ display: { xs: "none", md: "flex" } }}
           >
             {links.map((link) => {
-              if (!link.private) {
-                return (
-                  <NavLink
-                    to={link.path}
-                    key={link.name}
-                    style={({ isActive }) => {
-                      return {
-                        borderRadius: isActive ? "5px" : "",
-                        background: isActive ? "rgba(255, 255, 255, 0.3)" : "",
-                      };
-                    }}
-                  >
-                    <Button
-                      aria-label={link.name}
-                      variant="text"
-                      startIcon={link.icon}
-                      sx={{
-                        color: "white",
-                        ":hover": {
-                          backgroundColor: "rgba(255, 255, 255, 0.1)",
-                        },
-                      }}
-                    >
-                      <Typography variant="body3" sx={{ fontWeight: "500" }}>
-                        {link.name}
-                      </Typography>
-                    </Button>
-                  </NavLink>
-                );
-              }
-            })}
-            {user?.role === "teacher" && (
-              <NavLink
-                to={"/createtest"}
-                key={"Create Test"}
-                style={({ isActive }) => {
-                  return {
-                    borderRadius: isActive ? "5px" : "",
-                    background: isActive ? "rgba(255, 255, 255, 0.3)" : "",
-                  };
-                }}
-              >
-                <Button
-                  aria-label={"Create Test"}
-                  variant="text"
-                  startIcon={<EditNoteIcon />}
-                  sx={{
-                    color: "white",
-                    ":hover": {
-                      backgroundColor: "rgba(255, 255, 255, 0.1)",
-                    },
+              if (!user || (user?.role === "student" && link.private)) return;
+              return (
+                <NavLink
+                  to={link.path}
+                  key={link.name}
+                  style={({ isActive }) => {
+                    return {
+                      borderRadius: isActive ? "5px" : "",
+                      background: isActive ? "rgba(255, 255, 255, 0.3)" : "",
+                    };
                   }}
                 >
-                  <Typography variant="body3" sx={{ fontWeight: "500" }}>
-                    Create Test
-                  </Typography>
-                </Button>
-              </NavLink>
-            )}
+                  <Button
+                    aria-label={link.name}
+                    variant="text"
+                    startIcon={link.icon}
+                    sx={{
+                      color: "white",
+                      ":hover": {
+                        backgroundColor: "rgba(255, 255, 255, 0.1)",
+                      },
+                    }}
+                  >
+                    <Typography variant="body3" sx={{ fontWeight: "500" }}>
+                      {link.name}
+                    </Typography>
+                  </Button>
+                </NavLink>
+              );
+            })}
           </Stack>
           <Stack direction="row" spacing={1} alignItems="center">
             <Typography

@@ -4,7 +4,7 @@ import Loader from "../components/Loader";
 import NavBar from "../components/NavBar";
 
 const ProtectedRoute = () => {
-  const { user, isLoading } = useSelector((state) => state.auth);
+  const { isLoading } = useSelector((state) => state.auth);
   const token = localStorage.getItem("access_token");
   if (isLoading)
     return (

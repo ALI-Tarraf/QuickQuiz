@@ -1,7 +1,6 @@
 import axios from "axios";
-import Cookies from "universal-cookie";
 
-const cookies = new Cookies();
+// const cookies = new Cookies();
 const BASE_URL = "http://127.0.0.1:8000/api";
 
 const axiosInstance = axios.create({
@@ -26,13 +25,18 @@ axiosInstance.interceptors.request.use(
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response && error.response.status === 401) {
+    if (
+      error.response &&
+      error.response.status === 401 &&
+      error.response?.data?.message === "Unauthenticated."
+    ) {
+      console.log(error);
       // Clear stored tokens (optional, but clean)
       // cookies.remove("access_token");
       localStorage.removeItem("access_token");
 
       // Redirect to login page
-      window.location.href = "/"; // Adjust path as needed
+      // window.location.href = "/"; // Adjust path as needed
     }
 
     return Promise.reject(error);

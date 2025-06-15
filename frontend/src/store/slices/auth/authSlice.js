@@ -1,8 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "../../../utils/axios";
-import Cookies from "universal-cookie";
 
-const cookie = new Cookies();
+// const cookie = new Cookies();
 // register
 export const register = createAsyncThunk(
   "auth/register",

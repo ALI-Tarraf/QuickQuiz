@@ -16,68 +16,85 @@ import {
 import WorkspacePremiumOutlinedIcon from "@mui/icons-material/WorkspacePremiumOutlined";
 import LocalLibraryOutlinedIcon from "@mui/icons-material/LocalLibraryOutlined";
 import { useEffect, useState } from "react";
-const studentData = {
-  testname: "Midterm Exam - CS101",
-  total: 100,
-  totalparticipants: 6,
+import { useDispatch, useSelector } from "react-redux";
+import { getTeacherTestResultsDetails } from "../store/slices/tests/testsSlice";
+import { useParams } from "react-router-dom";
+import Loader from "../components/Loader";
+import Errorpage from "../components/ErrorPage";
+// const studentData = {
+//   testname: "Midterm Exam - CS101",
+//   total: 100,
+//   totalparticipants: 6,
 
-  students: [
-    {
-      name: "John Smith",
-      id: "1",
-      score: 75,
-    },
-    {
-      name: "Sarah Ahmed",
-      id: "123",
-      score: 60,
-    },
-    {
-      name: "John Smith",
-      id: "1234",
-      score: 75,
-    },
-    {
-      name: "Sarah Ahmed",
-      id: "12345",
-      score: 59,
-    },
-    {
-      name: "John Smith",
-      id: "123456",
-      score: 75,
-    },
-    {
-      name: "Sarah Ahmed",
-      id: "12347",
-      score: 40,
-    },
-  ],
-};
+//   students: [
+//     {
+//       name: "John Smith",
+//       id: "1",
+//       score: 75,
+//     },
+//     {
+//       name: "Sarah Ahmed",
+//       id: "123",
+//       score: 60,
+//     },
+//     {
+//       name: "John Smith",
+//       id: "1234",
+//       score: 75,
+//     },
+//     {
+//       name: "Sarah Ahmed",
+//       id: "12345",
+//       score: 59,
+//     },
+//     {
+//       name: "John Smith",
+//       id: "123456",
+//       score: 75,
+//     },
+//     {
+//       name: "Sarah Ahmed",
+//       id: "12347",
+//       score: 40,
+//     },
+//   ],
+// };
 const TestResultDetails = () => {
+  const dispatch = useDispatch();
+  const { isLoading, error, teacherResults } = useSelector(
+    (state) => state.tests
+  );
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [filter, setFilter] = useState("all");
   const [filteredStudents, setFilteredStudents] = useState(
-    studentData.students
+    teacherResults?.student_results
   );
+  console.log(teacherResults);
+  console.log(filteredStudents);
+  const { id } = useParams();
 
   const handleFilterChange = (event, newFilter) => {
     if (newFilter !== null) {
       setFilter(newFilter);
     }
   };
+  useEffect(() => {
+    dispatch(getTeacherTestResultsDetails(id));
+  }, [dispatch, id]);
 
   useEffect(() => {
-    const newFiltered = studentData.students.filter((student) => {
-      const percentage = (student.score / studentData.total) * 100;
+    const newFiltered = teacherResults?.student_results?.filter((student) => {
+      const percentage = (student.score / teacherResults.total_marks) * 100;
       if (filter === "pass") return percentage >= 60;
       if (filter === "fail") return percentage < 60;
       return true;
     });
     setFilteredStudents(newFiltered);
-  }, [filter]);
+  }, [filter, teacherResults]);
+  if (isLoading) return <Loader />;
 
+  if (error) return <Errorpage />;
   return (
     <Box sx={{ p: { xs: 1, sm: 2, md: 4 } }}>
       <Typography
@@ -89,7 +106,7 @@ const TestResultDetails = () => {
         }}
         gutterBottom
       >
-        {studentData.testname} Results
+        {teacherResults?.test_title} Results
       </Typography>
       <Box
         sx={{
@@ -112,7 +129,7 @@ const TestResultDetails = () => {
         >
           <WorkspacePremiumOutlinedIcon />
           <Typography sx={{ fontSize: { xs: "18px", md: "23px" } }}>
-            Total mark: {studentData.total}
+            Total mark: {teacherResults?.total_marks}
           </Typography>
         </Box>
         <Box
@@ -128,7 +145,7 @@ const TestResultDetails = () => {
         >
           <LocalLibraryOutlinedIcon />
           <Typography sx={{ fontSize: { xs: "18px", md: "23px" } }}>
-            participants: {studentData.totalparticipants}
+            participants: {teacherResults?.participants}
           </Typography>
         </Box>
       </Box>
@@ -193,7 +210,7 @@ const TestResultDetails = () => {
               <TableRow
                 sx={{
                   backgroundColor:
-                    (student.score / studentData.total) * 100 >= 60
+                    (student.score / teacherResults?.total_marks) * 100 >= 60
                       ? "rgba(172, 255, 47, 0.306)"
                       : "rgb(255, 0, 0,0.306)",
                   borderBottom: "2px solid rgba(128, 128, 128, 0.702)",
@@ -207,7 +224,7 @@ const TestResultDetails = () => {
                     fontWeight: { xs: 400, md: 500 },
                   }}
                 >
-                  {student.name}
+                  {student.student_name}
                 </TableCell>
                 <TableCell
                   align="center"
@@ -224,12 +241,12 @@ const TestResultDetails = () => {
                     fontSize: { xs: "15px", md: "17px" },
                     fontWeight: { xs: 400, md: 500 },
                     color:
-                      (student.score / studentData.total) * 100 >= 60
+                      (student.score / teacherResults?.total_marks) * 100 >= 60
                         ? "green"
                         : "red",
                   }}
                 >
-                  {student.score}/{studentData.total}
+                  {student.score}/{teacherResults?.total_marks}
                 </TableCell>
                 <TableCell
                   align="center"
@@ -237,12 +254,16 @@ const TestResultDetails = () => {
                     fontSize: { xs: "15px", md: "17px" },
                     fontWeight: { xs: 400, md: 500 },
                     color:
-                      (student.score / studentData.total) * 100 >= 60
+                      (student.score / teacherResults?.total_marks) * 100 >= 60
                         ? "green"
                         : "red",
                   }}
                 >
-                  {((student.score / studentData.total) * 100).toFixed(1)}%
+                  {(
+                    (student.score / teacherResults?.total_marks) *
+                    100
+                  ).toFixed(1)}
+                  %
                 </TableCell>
               </TableRow>
             ))}

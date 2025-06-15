@@ -1,60 +1,55 @@
 import { Grid } from "@mui/material";
-
 import TestCard from "../components/TestCard";
-
+import { getTests } from "../store/slices/tests/testsSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { useEffect } from "react";
+import Loader from "../components/Loader";
+import Errorpage from "../components/ErrorPage";
 const TestsPage = () => {
-  const exams = [
-    {
-      id: 1,
-      title: "Midterm Exam - CS101",
-      date: "May 10, 2025",
-      time: "10:47 AM",
-      instructor: "Dr. Jane Smith",
-      duration: "60 mins",
-      totalMarks: 100,
-      status: "available",
-    },
-    {
-      id: 2,
-      title: "Final Exam - Math 202",
-      date: "June 1, 2025",
-      time: "10:47 AM",
-      instructor: "Prof. Ahmed Khan",
-      duration: "90 mins",
-      totalMarks: 150,
-      status: "not available",
-    },
-    {
-      id: 3,
-      title: "Quiz - Biology 110",
-      date: "May 5, 2025",
-      time: "10:47 AM",
-      instructor: "Dr. Lina Park",
-      duration: "30 mins",
-      totalMarks: 50,
-      status: "available",
-    },
-    {
-      id: 4,
-      title: "Practice Test - History 301",
-      date: "May 15, 2025",
-      time: "10:47 AM",
-      instructor: "Dr. George Miller",
-      duration: "45 mins",
-      totalMarks: 75,
-      status: "available",
-    },
-    {
-      id: 5,
-      title: "Mock Exam - Physics 205",
-      date: "May 20, 2025",
-      time: "10:47 AM",
-      instructor: "Prof. Fatima Noor",
-      duration: "120 mins",
-      totalMarks: 200,
-      status: "not available",
-    },
-  ];
+  const { isLoading, error, tests } = useSelector((state) => state.tests);
+
+  const dispatch = useDispatch();
+  useEffect(() => {
+    dispatch(getTests());
+  }, [dispatch]);
+
+  if (isLoading) return <Loader />;
+  if (error) return <Errorpage />;
+
+  // const date = dayjs("2025-06-14", "DD-MM-YYYY").toDate();
+  // const dateOnly = new Date().toLocaleDateString("en-CA");
+  // console.log(new Date());
+  // console.log(dateOnly);
+  // console.log(date);
+  // console.log("2025-06-14");
+  // console.log(tests[0].date);
+  // console.log(tests[0].date == "2025-05-20");
+
+  // const targetTime = "13:20:00";
+
+  // // Get current time
+  // const now = new Date();
+
+  // // Extract hours, minutes, seconds
+  // const [targetHours, targetMinutes, targetSeconds] = targetTime
+  //   .split(":")
+  //   .map(Number);
+
+  // // Create a Date object for today at the target time
+  // const targetDate = new Date();
+  // targetDate.setHours(targetHours, targetMinutes, targetSeconds, 0);
+
+  // // Compare
+  // if (now > targetDate) {
+  //   console.log(now);
+  //   console.log(targetDate);
+  //   console.log("Current time is after 13:20:00");
+  // } else {
+  //   console.log(now);
+  //   console.log(targetDate);
+  //   console.log("Current time is before 13:20:00");
+  // }
+
   return (
     <>
       <Grid
@@ -62,9 +57,9 @@ const TestsPage = () => {
         spacing={{ xs: "10px", sm: "28px" }}
         sx={{ p: { xs: "10px", sm: "20px" } }}
       >
-        {exams.map((exam, idx) => (
+        {tests.map((test, idx) => (
           <Grid item xs={12} md={6} lg={4} xl={3} key={idx}>
-            <TestCard value={exam} />
+            <TestCard value={test} />
           </Grid>
         ))}
       </Grid>

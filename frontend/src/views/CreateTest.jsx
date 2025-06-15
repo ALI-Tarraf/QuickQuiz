@@ -4,6 +4,7 @@ import * as Yup from "yup";
 import {
   Box,
   Button,
+  CircularProgress,
   FormControl,
   FormHelperText,
   InputLabel,
@@ -14,6 +15,13 @@ import {
   Typography,
 } from "@mui/material";
 import WarningIcon from "@mui/icons-material/Warning";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  createTest,
+  testsOperationCompleted,
+} from "../store/slices/tests/testsSlice";
+import OperationAlert from "../components/OperationAlert";
+import { useEffect, useState } from "react";
 
 const validationSchema = Yup.object().shape({
   testName: Yup.string().required("Test name is required"),
@@ -53,6 +61,20 @@ const validationSchema = Yup.object().shape({
 });
 
 function CreateTest() {
+  const [minTime, setMinTime] = useState("");
+  const dispatch = useDispatch();
+  const today = new Date().toLocaleDateString("en-CA");
+
+  const { status, message, operationError, operationLoading } = useSelector(
+    (state) => state.tests
+  );
+
+  const submitHandler = async (values, { resetForm }) => {
+    const resultAction = await dispatch(createTest(values));
+    if (createTest.fulfilled.match(resultAction)) {
+      resetForm();
+    }
+  };
   const initialValues = {
     testName: "",
     testDuration: "",
@@ -68,13 +90,26 @@ function CreateTest() {
       },
     ],
   };
+  useEffect(() => {
+    const now = new Date();
+    now.setHours(now.getHours() + 1); // Add 1 hour
+    const hours = String(now.getHours()).padStart(2, "0");
+    const minutes = String(now.getMinutes()).padStart(2, "0");
+    setMinTime(`${hours}:${minutes}`);
+  }, []);
   return (
     <>
+      <OperationAlert
+        status={status}
+        error={operationError}
+        message={message}
+        completedAction={testsOperationCompleted}
+      />
       <Formik
         initialValues={initialValues}
         validationSchema={validationSchema}
         validateOnChange={false}
-        onSubmit={(values) => console.log(values)}
+        onSubmit={submitHandler}
       >
         {({ values, setFieldValue, errors }) => (
           <Form>
@@ -83,8 +118,8 @@ function CreateTest() {
                 py: 2,
                 fontWeight: "500",
                 fontSize: {
-                  xs: "h3.fontSize",
-                  sm: "h2.fontSize",
+                  xs: "2rem",
+                  sm: "3rem",
                 },
                 textAlign: "center",
               }}
@@ -130,6 +165,7 @@ function CreateTest() {
                   onChange={(event) => {
                     setFieldValue("testName", event.target.value);
                   }}
+                  value={values.testName}
                   error={!!errors?.testName}
                   helperText={errors?.testName ? errors?.testName : ""}
                   sx={{
@@ -149,6 +185,7 @@ function CreateTest() {
                   onChange={(event) => {
                     setFieldValue("testDuration", event.target.value);
                   }}
+                  value={values.testDuration}
                   error={!!errors?.testDuration}
                   helperText={errors?.testDuration ? errors?.testDuration : ""}
                   InputProps={{
@@ -166,6 +203,7 @@ function CreateTest() {
                   onChange={(event) => {
                     setFieldValue("totalMark", event.target.value);
                   }}
+                  value={values.totalMark}
                   error={!!errors?.totalMark}
                   helperText={errors?.totalMark ? errors?.totalMark : ""}
                   InputProps={{
@@ -195,8 +233,14 @@ function CreateTest() {
                     onChange={(event) => {
                       setFieldValue("testDate", event.target.value);
                     }}
+                    value={values.testDate}
                     error={!!errors?.testDate}
                     helperText={errors?.testDate ? errors?.testDate : ""}
+                    InputProps={{
+                      inputProps: {
+                        min: today, // ⛔️ Disallow past dates
+                      },
+                    }}
                   />
                 </Box>
                 <Box>
@@ -210,6 +254,10 @@ function CreateTest() {
                     type="time"
                     onChange={(event) => {
                       setFieldValue("testHour", event.target.value);
+                    }}
+                    value={values.testHour}
+                    inputProps={{
+                      min: minTime,
                     }}
                     error={!!errors?.testHour}
                     helperText={errors?.testHour ? errors?.testHour : ""}
@@ -258,6 +306,7 @@ function CreateTest() {
                           event.target.value
                         );
                       }}
+                      value={values.questions[index].questionText}
                       error={!!errors?.questions?.[index]?.questionText}
                       helperText={
                         errors?.questions?.[index]?.questionText
@@ -266,7 +315,7 @@ function CreateTest() {
                       }
                       sx={{ width: "100%" }}
                     />
-                    {/* ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss */}
+
                     <TextField
                       name={`questions.${index}.questionScore`}
                       id={`questions.${index}.questionScore`}
@@ -278,6 +327,7 @@ function CreateTest() {
                           event.target.value
                         );
                       }}
+                      value={values.questions[index].questionScore}
                       error={!!errors?.questions?.[index]?.questionScore}
                       helperText={
                         errors?.questions?.[index]?.questionScore
@@ -286,7 +336,6 @@ function CreateTest() {
                       }
                       sx={{ width: { xs: "22%", md: "14%" } }}
                     />
-                    {/* ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss */}
                   </Box>
                   <Stack direction="column" sx={{ gap: "10px" }}>
                     {question?.options?.map((option, i) => (
@@ -302,6 +351,7 @@ function CreateTest() {
                               event.target.value
                             );
                           }}
+                          value={values.questions[index].options[i]}
                           error={!!errors?.questions?.[index]?.options?.[i]}
                           helperText={
                             errors?.questions?.[index]?.options?.[i]
@@ -369,8 +419,14 @@ function CreateTest() {
                       variant="outlined"
                       color="error"
                       onClick={() => {
-                        const newOptions = [...question.options.slice(0, -1)];
-                        setFieldValue(`questions.${index}.options`, newOptions);
+                        if (question.options.length > 2) {
+                          const newOptions = [...question.options.slice(0, -1)];
+                          setFieldValue(
+                            `questions.${index}.options`,
+                            newOptions
+                          );
+                          setFieldValue(`questions.${index}.correctAnswer`, "");
+                        }
                       }}
                     >
                       Remove option
@@ -419,8 +475,19 @@ function CreateTest() {
                   Remove question
                 </Button>
               </Stack>
-              <Button type="submit" color="info" variant="contained">
-                Publish the test
+              <Button
+                type="submit"
+                color="info"
+                variant="contained"
+                sx={{ mt: "20px" }}
+                startIcon={
+                  operationLoading ? (
+                    <CircularProgress size={20} color="inherit" />
+                  ) : null
+                }
+                disabled={operationLoading ? true : false}
+              >
+                {operationLoading ? "publishing..." : "Publish the test"}
               </Button>
               {errors?.questions === "You should add at least one question" ||
               errors?.questions ===

@@ -1,4 +1,4 @@
-import { Route, Routes, useNavigate } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import Login from "./views/Login";
 import Signup from "./views/SignUp";
 import TestsPage from "./views/TestsPage";
@@ -15,15 +15,15 @@ import {
   authOperationCompleted,
   getAuthenticatedUser,
 } from "./store/slices/auth/authSlice";
-import Cookies from "universal-cookie";
 import OperationAlert from "./components/OperationAlert";
 import ProtectedRoute from "./routes/ProtectedRoute";
+import TestsDashboard from "./views/TestsDashboard";
 
 function App() {
   const dispatch = useDispatch();
   const { user, error, status, message } = useSelector((state) => state.auth);
 
-  const cookie = new Cookies();
+  // const cookie = new Cookies();
   // const token = cookie.get("access_token");
   const token = localStorage.getItem("access_token");
   useEffect(() => {
@@ -31,6 +31,7 @@ function App() {
       dispatch(getAuthenticatedUser());
     }
   }, [token]);
+
   return (
     <main>
       <OperationAlert
@@ -50,6 +51,14 @@ function App() {
               element={
                 <RoleProtectedRoute roles={["teacher"]}>
                   <CreateTest />
+                </RoleProtectedRoute>
+              }
+            />
+            <Route
+              path="/testsdashboard"
+              element={
+                <RoleProtectedRoute roles={["teacher"]}>
+                  <TestsDashboard />
                 </RoleProtectedRoute>
               }
             />
