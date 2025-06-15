@@ -17,9 +17,9 @@ class ExamResult extends Model
         'score'
 
     ];
-public function student()
+public function user()
 {
-    return $this->belongsTo(Student::class, 'student_id');
+    return $this->belongsTo(User::class, 'user_id');
 }
 
 

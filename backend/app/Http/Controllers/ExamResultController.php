@@ -22,8 +22,8 @@ public function getStudentResults()
     $user = Auth::user();
     $student = Student::where('user_id', $user->id)->first();
 
-    $results = ExamResult::where('student_id', $student->id)
-        ->with(['exam', 'student.user'])  // جلب العلاقات
+    $results = ExamResult::where('user_id', $student->id)
+        ->with(['exam', 'user'])  // جلب العلاقات
         ->get()
         ->map(function ($result) {
             return [
@@ -45,6 +45,10 @@ public function getTeacherExamResultsById($examId)
 
     $teacher = Teacher::where('user_id', $user->id)->first();
 
+    if (!$teacher) {
+        return response()->json(['error' => 'لم يتم العثور على المدرّس'], 404);
+    }
+
     // التأكد أن الامتحان يخص المدرّس الحالي
     $exam = Exam::where('id', $examId)->where('teacher_id', $teacher->id)->first();
 
@@ -52,19 +56,17 @@ public function getTeacherExamResultsById($examId)
         return response()->json(['error' => 'الامتحان غير موجود أو لا يتبع هذا المدرس'], 404);
     }
 
-    // جلب النتائج مع علاقات الطالب
+    // جلب النتائج مع بيانات الطالب (المستخدم)
     $results = ExamResult::where('exam_id', $exam->id)
-        ->with(['student.user'])
+        ->with('user')  // علاقة user موجودة في ExamResult
         ->get();
 
     // تنسيق النتائج
-    $formattedResults = $results->map(function ($result) use ($exam) {
+    $formattedResults = $results->map(function ($result) {
         return [
             'id' => $result->id,
-            'student_name' => $result->student ? $result->student?->user?->first_name . ' ' . $result->student?->user?->last_name : null,
-
+            'student_name' => $result->user ? $result->user->first_name . ' ' . $result->user->last_name : null,
             'score'        => $result->score,
-
         ];
     });
 
@@ -72,13 +74,15 @@ public function getTeacherExamResultsById($examId)
         'test_id' => $exam->id,
         'test_title' => $exam->title,
         'total_marks' => $exam->total_marks,
-
-        'participants'=>$formattedResults->count(),
+        'participants' => $formattedResults->count(),
         'student_results' => $formattedResults
     ]);
 }
+
 public function getTeacherExamResults()
 {
+    Log::info('getTeacherExamResults reached');
+
     $user = Auth::user();
     $teacher = Teacher::where('user_id', $user->id)->first();
 
@@ -109,6 +113,4 @@ public function getTeacherExamResults()
 
     return response()->json($response);
 }
-
-
 }

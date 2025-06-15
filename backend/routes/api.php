@@ -23,13 +23,8 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-// Routes for students
-Route::prefix('tests')->middleware('auth:api')->group(function () {
-    Route::get('/', [ExamsController::class, 'index']);
-    Route::get('/{id}', [ExamsController::class, 'show']);
-    Route::post('/answer/{examId}', [StudentAnswersController::class, 'create']);
-});
 
+// Routes for students
 Route::middleware(['auth:api', 'role:student'])->group(function () {
     Route::get('/student/dashboard', [StudentController::class, 'dashboard']);
     Route::get('/student/profile', [StudentController::class, 'profile']);
@@ -40,40 +35,41 @@ Route::middleware(['auth:api', 'role:student'])->group(function () {
 
     });
 });
-
 // Routes for teachers
 Route::middleware(['auth:api','role:teacher'])->group(function () {
     Route::get('/teacher/dashboard', [TeacherController::class, 'dashboard']);
     Route::get('/teacher/profile', [TeacherController::class, 'profile']);
-
-
     Route::prefix('tests')->group(function () {
-    Route::post('/', [ExamsController::class, 'create']);
+        Route::post('/', [ExamsController::class, 'create']);
     Route::get('/results', [ExamResultController::class, 'getTeacherExamResults']);
     Route::get('/results/{examId}', [ExamResultController::class, 'getTeacherExamResultsById']);
-
     Route::get('/questions', [ExamsController::class, 'getQuestions']);
-
     Route::put('/{id}', [ExamsController::class, 'update']);
     Route::delete('/{id}', [ExamsController::class, 'destroy']);
 });
     Route::prefix('questions')->group(function () {
-    Route::post('/', [QuestionsController::class, 'create']);
-    Route::get('/', [QuestionsController::class, 'index']);
-    Route::get('/{id}', [QuestionsController::class, 'show']);
-    Route::put('/{id}', [QuestionsController::class, 'update']);
-    Route::delete('/{id}', [QuestionsController::class, 'destroy']);
-});
+        Route::post('/', [QuestionsController::class, 'create']);
+        Route::get('/', [QuestionsController::class, 'index']);
+        Route::get('/{id}', [QuestionsController::class, 'show']);
+        Route::put('/{id}', [QuestionsController::class, 'update']);
+        Route::delete('/{id}', [QuestionsController::class, 'destroy']);
+    });
     Route::prefix('options')->group(function () {
-    Route::post('/', [OptionsController::class, 'create']);
-    Route::get('/', [OptionsController::class, 'index']);
-    Route::get('/{id}', [OptionsController::class, 'show']);
+        Route::post('/', [OptionsController::class, 'create']);
+        Route::get('/', [OptionsController::class, 'index']);
+        Route::get('/{id}', [OptionsController::class, 'show']);
     Route::put('/{id}', [OptionsController::class, 'update']);
     Route::delete('/{id}', [OptionsController::class, 'destroy']);
 });
 });
 
 
+//Routs for users
+Route::prefix('tests')->middleware('auth:api')->group(function () {
+    Route::get('/', [ExamsController::class, 'index']);
+     Route::get('/{id}', [ExamsController::class, 'show']);
+    Route::post('/answer/{examId}', [StudentAnswersController::class, 'create']);
+});
 // Routes for admins
 // Route::middleware(['auth:api', 'role:admin'])->group(function () {
 //     Route::post('/subjects', [SubjectsController::class, 'createSubject']);

@@ -90,7 +90,7 @@ public function index()
     $exam = Exam::with('questions.questionAnswers')->find($id);
 
     if (!$exam) {
-        return response()->json(['message' => 'Exam not found'], 404);
+        return response()->json(['message' =>' found'], 404);
     }
 
     $data = [
