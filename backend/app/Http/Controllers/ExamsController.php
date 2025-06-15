@@ -64,11 +64,11 @@ class ExamsController extends Controller
 
         DB::commit();
 
-        return response()->json(['success' => true, 'exam_id' => $exam->id], 201);
+        return response()->json(['success' => true, 'test_title' => $exam->title], 201);
 
     } catch (\Exception $e) {
         DB::rollBack();
-        return response()->json(['error' => 'Failed to create exam', 'message' => $e->getMessage()], 500);
+        return response()->json(['error' => 'Failed to create test'], 500);
     }
 
 
@@ -78,39 +78,121 @@ class ExamsController extends Controller
 
 
     // Get single exam by ID
-    public function show($id)
-    {
-        $exam = Exam::find($id);
-        $exam = Exam::with('questions')->find($id);
+   public function show($id)
+{
+    $exam = Exam::with('questions.questionAnswers')->find($id);
 
-        if (!$exam) {
-            return response()->json(['message' => 'Exam not found'], 404);
-        }
-
-        return response()->json(['exam' => $exam]);
+    if (!$exam) {
+        return response()->json(['message' => 'Exam not found'], 404);
     }
+
+    $data = [
+        'testName' => $exam->title,
+        'questions' => $exam->questions ? $exam->questions->map(function ($question) {
+            return [
+                'id' => $question->id,
+                'question' => $question->question_text,
+                'mark' => $question->mark,
+                'options' => $question->questionAnswers ? $question->questionAnswers->map(function ($answer) {
+                    return [
+                        'id' => $answer->id,
+                        'text' => $answer->answer_text,
+
+                    ];
+                }) : [],
+            ];
+        }) : [],
+    ];
+
+    return response()->json(['exam' => $data]);
+}
+
+
     // Update exam
-    public function update(UpdateExamRequest $request, $id)
-    {
-        $exam = Exam::find($id);
+   public function update(Request $request, $examId)
+{
+    $teacher = Teacher::where('user_id', Auth::id())->first();
 
-        if (!$exam) {
-            return response()->json(['message' => 'Exam not found'], 404);
+    DB::beginTransaction();
+    try {
+        $exam = Exam::where('id', $examId)->where('teacher_id', $teacher->id)->firstOrFail();
+
+        // ✅ تحديث بيانات الامتحان
+        $exam->update([
+            'title' => $request->testName,
+            'total_marks' => $request->totalMark,
+            'duration_minutes' => $request->testDuration,
+            'date' => $request->testDate,
+            'time' => $request->testHour,
+        ]);
+
+        // ✅ جلب الأسئلة الحالية من قاعدة البيانات
+        $existingQuestions = Question::where('exam_id', $exam->id)->get();
+
+        // ✅ استخراج معرفات الأسئلة الجديدة من الطلب
+        $newQuestionIds = collect($request->questions)->pluck('id')->filter()->toArray();
+
+        // ✅ حذف الأسئلة التي لم تعد موجودة
+        foreach ($existingQuestions as $existingQuestion) {
+            if (!in_array($existingQuestion->id, $newQuestionIds)) {
+                QuestionAnswers::where('question_id', $existingQuestion->id)->delete();
+                $existingQuestion->delete();
+            }
         }
 
-        $exam->update([
-            'title' => $request->title,
-            'subject_id' => $request->subject_id,
-            'total_marks' => $request->total_marks,
-            'duration_minutes' => $request->duration_minutes,
-            'max_attempts' => $request->max_attempts,
-        ]);
+        // ✅ تحديث أو إنشاء الأسئلة
+        foreach ($request->questions as $q) {
+            if (isset($q['id'])) {
+                // تحديث سؤال موجود
+                $question = Question::where('id', $q['id'])->where('exam_id', $exam->id)->first();
+                if ($question) {
+                    $question->update([
+                        'question_text' => $q['questionText'],
+                        'mark' => $q['questionScore'],
+                    ]);
 
+                    // حذف الإجابات القديمة
+                    QuestionAnswers::where('question_id', $question->id)->delete();
+
+                    // إضافة الإجابات الجديدة
+                    foreach ($q['options'] as $option) {
+                        QuestionAnswers::create([
+                            'question_id' => $question->id,
+                            'answer_text' => $option,
+                            'is_correct' => $option === $q['correctAnswer'],
+                        ]);
+                    }
+                }
+            } else {
+                // إنشاء سؤال جديد
+                $newQuestion = Question::create([
+                    'exam_id' => $exam->id,
+                    'question_text' => $q['questionText'],
+                    'mark' => $q['questionScore'],
+                ]);
+
+                foreach ($q['options'] as $option) {
+                    QuestionAnswers::create([
+                        'question_id' => $newQuestion->id,
+                        'answer_text' => $option,
+                        'is_correct' => $option === $q['correctAnswer'],
+                    ]);
+                }
+            }
+        }
+
+        DB::commit();
+        return response()->json(['success' => true, 'message' => 'تم تحديث الامتحان بنجاح.']);
+
+    } catch (\Exception $e) {
+        DB::rollBack();
         return response()->json([
-            'message' => 'Exam updated successfully',
-            'exam' => $exam
-        ]);
+            'error' => 'فشل في تحديث الامتحان',
+            'message' => $e->getMessage()
+        ], 500);
     }
+}
+
     public function destroy($id)
     {
         $exam = Exam::find($id);

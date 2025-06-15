@@ -24,7 +24,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 
 // Routes for students
-Route::get('/tests', [ExamsController::class, 'index']);
+Route::middleware('auth:api')->get('/tests', [ExamsController::class, 'index']);
 Route::middleware(['auth:api', 'role:student'])->group(function () {
     Route::get('/student/dashboard', [StudentController::class, 'dashboard']);
     Route::get('/student/profile', [StudentController::class, 'profile']);
