@@ -10,13 +10,20 @@ use App\Models\Question;
 use App\Models\QuestionAnswers;
 use App\Models\Teacher;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 class ExamsController extends Controller
 {
-    public function index()
-    {
-        $exams = Exam::all();
 
-        $exams = $exams->map(function ($exam) {
+public function index()
+{
+    // الحصول على تاريخ اليوم
+    $today = Carbon::today();
+
+    // جلب الامتحانات من اليوم وما بعده
+    $exams = Exam::whereDate('date', '>=', $today)->get();
+
+    // تنسيق البيانات
+    $exams = $exams->map(function ($exam) {
         return [
             'id' => $exam->id,
             'title' => $exam->title,
@@ -31,8 +38,8 @@ class ExamsController extends Controller
     return response()->json([
         'exams' => $exams
     ]);
+}
 
-    }
   public function create(Request $request)
 {
     $teacher = Teacher::where('user_id',Auth::id())->first();
