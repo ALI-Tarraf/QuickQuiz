@@ -117,75 +117,69 @@ public function index()
 
 
     // Update exam
-   public function update(Request $request, $examId)
+ public function update(Request $request, $examId)
 {
     $teacher = Teacher::where('user_id', Auth::id())->first();
+    if (!$teacher) {
+        return response()->json(['error' => 'المدرس غير موجود'], 404);
+    }
 
     DB::beginTransaction();
     try {
-        $exam = Exam::where('id', $examId)->where('teacher_id', $teacher->id)->firstOrFail();
+        $exam = Exam::where('id', $examId)
+                    ->where('teacher_id', $teacher->id)
+                    ->firstOrFail();
 
-        // ✅ تحديث بيانات الامتحان
+        // تحديث معلومات الامتحان
         $exam->update([
-            'title' => $request->testName,
-            'total_marks' => $request->totalMark,
-            'duration_minutes' => $request->testDuration,
-            'date' => $request->testDate,
-            'time' => $request->testHour,
+            'title' => $request->exam['testName'],
+            'date' => $request->exam['date'],
+            'time' => $request->exam['time'],
+            'duration_minutes' => $request->exam['duration'],
         ]);
 
-        // ✅ جلب الأسئلة الحالية من قاعدة البيانات
+        // الأسئلة القديمة
         $existingQuestions = Question::where('exam_id', $exam->id)->get();
+        $newIds = collect($request->exam['questions'])->pluck('id')->filter()->toArray();
 
-        // ✅ استخراج معرفات الأسئلة الجديدة من الطلب
-        $newQuestionIds = collect($request->questions)->pluck('id')->filter()->toArray();
-
-        // ✅ حذف الأسئلة التي لم تعد موجودة
-        foreach ($existingQuestions as $existingQuestion) {
-            if (!in_array($existingQuestion->id, $newQuestionIds)) {
-                QuestionAnswers::where('question_id', $existingQuestion->id)->delete();
-                $existingQuestion->delete();
+        // حذف الأسئلة غير الموجودة في الطلب
+        foreach ($existingQuestions as $q) {
+            if (!in_array($q->id, $newIds)) {
+                QuestionAnswers::where('question_id', $q->id)->delete();
+                $q->delete();
             }
         }
 
-        // ✅ تحديث أو إنشاء الأسئلة
-        foreach ($request->questions as $q) {
-            if (isset($q['id'])) {
-                // تحديث سؤال موجود
-                $question = Question::where('id', $q['id'])->where('exam_id', $exam->id)->first();
+        // معالجة الأسئلة الجديدة أو المعدلة
+        foreach ($request->exam['questions'] as $qData) {
+            if (isset($qData['id'])) {
+                // تعديل
+                $question = Question::where('id', $qData['id'])
+                                    ->where('exam_id', $exam->id)
+                                    ->first();
                 if ($question) {
                     $question->update([
-                        'question_text' => $q['questionText'],
-                        'mark' => $q['questionScore'],
+                        'question_text' => $qData['question'],
+                        'mark' => $qData['mark'],
                     ]);
-
-                    // حذف الإجابات القديمة
                     QuestionAnswers::where('question_id', $question->id)->delete();
-
-                    // إضافة الإجابات الجديدة
-                    foreach ($q['options'] as $option) {
-                        QuestionAnswers::create([
-                            'question_id' => $question->id,
-                            'answer_text' => $option,
-                            'is_correct' => $option === $q['correctAnswer'],
-                        ]);
-                    }
                 }
             } else {
-                // إنشاء سؤال جديد
-                $newQuestion = Question::create([
+                // إنشاء
+                $question = Question::create([
                     'exam_id' => $exam->id,
-                    'question_text' => $q['questionText'],
-                    'mark' => $q['questionScore'],
+                    'question_text' => $qData['question'],
+                    'mark' => $qData['mark'],
                 ]);
+            }
 
-                foreach ($q['options'] as $option) {
-                    QuestionAnswers::create([
-                        'question_id' => $newQuestion->id,
-                        'answer_text' => $option,
-                        'is_correct' => $option === $q['correctAnswer'],
-                    ]);
-                }
+            // إضافة الإجابات
+            foreach ($qData['options'] as $option) {
+                QuestionAnswers::create([
+                    'question_id' => $question->id,
+                    'answer_text' => $option['text'],
+                    'is_correct' => $option['text'] === $qData['correctAnswer']
+                ]);
             }
         }
 
@@ -217,22 +211,18 @@ public function index()
 
 
 
-
 public function getUpcomingExamsToday()
 {
-    $now = Carbon::now();
-    $threshold = $now->copy()->addMinutes(30);
-
-    // دمج التاريخ والوقت في استعلام MySQL باستخدام CONCAT ثم تحويلهم إلى DATETIME للمقارنة
-   $exams = DB::table('exams')
-    ->whereRaw("STR_TO_DATE(CONCAT(date, ' ', time), '%Y-%m-%d %H:%i:%s') >= DATE_ADD(NOW(), INTERVAL 30 MINUTE)")
-    ->orderBy('date')
-    ->orderBy('time')
-    ->get();
-
+    // جلب الامتحانات التي لم تبدأ بعد (الوقت الحالي لم يصل إليها)
+    $exams = DB::table('exams')
+        ->whereRaw("STR_TO_DATE(CONCAT(date, ' ', time), '%Y-%m-%d %H:%i:%s') > NOW()")
+        ->orderBy('date')
+        ->orderBy('time')
+        ->get();
 
     return response()->json($exams);
 }
+
 
 
 
