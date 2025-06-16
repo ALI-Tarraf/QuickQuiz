@@ -22,38 +22,42 @@ public function getStudentResults()
     $user = Auth::user();
     $student = Student::where('user_id', $user->id)->first();
 
-    $results = ExamResult::where('user_id', $student->id)
-        ->with(['exam', 'user'])  // جلب العلاقات
+    if (!$student) {
+        return response()->json(['error' => 'Student not found.'], 404);
+    }
+
+    $results = ExamResult::where('user_id', $user->id)
+        ->with('exam')
         ->get()
         ->map(function ($result) {
             return [
-                'id' =>$result->exam->id ,
+                'exam_id'    => $result->exam->id,
                 'exam_title' => $result->exam->title,
-                'total_marks' => $result->exam->total_marks,
-                'score' => $result->score,
+                'total_marks'=> $result->exam->total_marks,
+                'score'      => $result->score,
             ];
         });
 
-    return response()->json([
-        'results' => $results
-    ]);
+    return response()->json(['results' => $results]);
 }
+
 
 public function getTeacherExamResultsById($examId)
 {
     $user = Auth::user();
 
+
     $teacher = Teacher::where('user_id', $user->id)->first();
 
     if (!$teacher) {
-        return response()->json(['error' => 'لم يتم العثور على المدرّس'], 404);
+        return response()->json(['error' => 'Teacher doesnt exist'], 404);
     }
 
     // التأكد أن الامتحان يخص المدرّس الحالي
     $exam = Exam::where('id', $examId)->where('teacher_id', $teacher->id)->first();
 
     if (!$exam) {
-        return response()->json(['error' => 'الامتحان غير موجود أو لا يتبع هذا المدرس'], 404);
+        return response()->json(['error' => 'Exam not found or it doesnt relate to this teacher'], 404);
     }
 
     // جلب النتائج مع بيانات الطالب (المستخدم)
@@ -64,7 +68,7 @@ public function getTeacherExamResultsById($examId)
     // تنسيق النتائج
     $formattedResults = $results->map(function ($result) {
         return [
-            'id' => $result->id,
+            'id' => $result->user->id,
             'student_name' => $result->user ? $result->user->first_name . ' ' . $result->user->last_name : null,
             'score'        => $result->score,
         ];
@@ -87,7 +91,7 @@ public function getTeacherExamResults()
     $teacher = Teacher::where('user_id', $user->id)->first();
 
     if (!$teacher) {
-        return response()->json(['error' => 'لم يتم العثور على المدرّس'], 404);
+        return response()->json(['error' => 'Teacher doesnt exist'], 404);
     }
 
     // جلب الامتحانات التي لها نتائج
@@ -95,9 +99,7 @@ public function getTeacherExamResults()
         ->whereHas('results')
         ->get();
 
-    if ($exams->isEmpty()) {
-        return response()->json(['error' => 'لا يوجد امتحانات منتهية بعد'], 404);
-    }
+
 
     // تجهيز الرد مع المعلومات الأساسية فقط
     $response = $exams->map(function ($exam) {

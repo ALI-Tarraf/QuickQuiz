@@ -11,6 +11,7 @@ use App\Models\QuestionAnswers;
 use App\Models\Teacher;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 class ExamsController extends Controller
 {
 
@@ -90,7 +91,7 @@ public function index()
     $exam = Exam::with('questions.questionAnswers')->find($id);
 
     if (!$exam) {
-        return response()->json(['message' =>' found'], 404);
+        return response()->json(['message' =>'Exam not found'], 404);
     }
 
     $data = [
@@ -212,4 +213,36 @@ public function index()
 
         return response()->json(['message' => 'Exam deleted successfully']);
     }
+
+
+
+
+public function getUpcomingExamsToday()
+{
+    $now = Carbon::now(); // الوقت الحالي
+    $in30Minutes = $now->copy()->addMinutes(30); // بعد نصف ساعة بالضبط
+
+    $exams = DB::table('exams')
+        ->whereDate('date', '>=', $now->toDateString()) // اليوم أو بعده
+        ->get()
+        ->filter(function ($exam) use ($in30Minutes) {
+            try {
+                // إزالة الثواني من الوقت
+                $timeFormatted = substr($exam->time, 0, 5);
+                $examDateTime = Carbon::createFromFormat('Y-m-d H:i', $exam->date . ' ' . $timeFormatted);
+
+                // التعديل هنا: استخدم greaterThan بدلاً من greaterThanOrEqualTo
+                return $examDateTime->greaterThan($in30Minutes); // فقط إذا كان الوقت أكبر من 30 دقيقة
+            } catch (\Exception $e) {
+                Log::error('خطأ في تنسيق التاريخ: ' . $e->getMessage());
+                return false;
+            }
+        })
+        ->values();
+
+    return response()->json($exams);
+}
+
+
+
 }
