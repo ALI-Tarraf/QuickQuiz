@@ -217,28 +217,19 @@ public function index()
 
 
 
+
 public function getUpcomingExamsToday()
 {
-    $now = Carbon::now(); // الوقت الحالي
-    $in30Minutes = $now->copy()->addMinutes(30); // بعد نصف ساعة بالضبط
+    $now = Carbon::now();
+    $threshold = $now->copy()->addMinutes(30);
 
-    $exams = DB::table('exams')
-        ->whereDate('date', '>=', $now->toDateString()) // اليوم أو بعده
-        ->get()
-        ->filter(function ($exam) use ($in30Minutes) {
-            try {
-                // إزالة الثواني من الوقت
-                $timeFormatted = substr($exam->time, 0, 5);
-                $examDateTime = Carbon::createFromFormat('Y-m-d H:i', $exam->date . ' ' . $timeFormatted);
+    // دمج التاريخ والوقت في استعلام MySQL باستخدام CONCAT ثم تحويلهم إلى DATETIME للمقارنة
+   $exams = DB::table('exams')
+    ->whereRaw("STR_TO_DATE(CONCAT(date, ' ', time), '%Y-%m-%d %H:%i:%s') >= DATE_ADD(NOW(), INTERVAL 30 MINUTE)")
+    ->orderBy('date')
+    ->orderBy('time')
+    ->get();
 
-                // التعديل هنا: استخدم greaterThan بدلاً من greaterThanOrEqualTo
-                return $examDateTime->greaterThan($in30Minutes); // فقط إذا كان الوقت أكبر من 30 دقيقة
-            } catch (\Exception $e) {
-                Log::error('خطأ في تنسيق التاريخ: ' . $e->getMessage());
-                return false;
-            }
-        })
-        ->values();
 
     return response()->json($exams);
 }

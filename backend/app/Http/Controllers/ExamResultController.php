@@ -13,7 +13,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use PHPUnit\Framework\MockObject\Builder\Stub;
-
+use Illuminate\Support\Facades\DB;
 class ExamResultController extends Controller
 {
 
@@ -115,4 +115,6 @@ public function getTeacherExamResults()
 
     return response()->json($response);
 }
+
+
 }

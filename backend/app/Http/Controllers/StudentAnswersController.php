@@ -78,16 +78,11 @@ public function create(Request $request, $examId)
 
 private function saveExamResult($studentId, $examId)
 {
-    $score = StudentAnswer::where('user_id', $studentId)
-        ->where('is_correct', 1)
-        ->whereHas('question', function ($query) use ($examId) {
-            $query->where('exam_id', $examId);
-        })
-        ->with('question')
-        ->get()
-        ->sum(function ($answer) {
-            return $answer->question->mark ?? 1;
-        });
+    $score = StudentAnswer::where('student_answers.user_id', $studentId)
+        ->where('student_answers.is_correct', 1)
+        ->join('question_bank', 'student_answers.question_id', '=', 'question_bank.id')
+        ->where('question_bank.exam_id', $examId)
+        ->sum('question_bank.mark');
 
     ExamResult::updateOrCreate(
         ['user_id' => $studentId, 'exam_id' => $examId],
