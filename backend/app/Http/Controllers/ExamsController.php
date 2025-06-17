@@ -93,19 +93,28 @@ public function index()
 
 
 
-    // Get single exam by ID
-   public function show($id)
+
+
+public function show($id)
 {
     $exam = Exam::with('questions.questionAnswers')->find($id);
 
     if (!$exam) {
-        return response()->json(['message' =>'Exam not found'], 404);
+        return response()->json(['message' => 'Exam not found'], 404);
     }
+
+    // دمج التاريخ والوقت لإنشاء وقت الامتحان الكامل
+    $examDateTime = Carbon::parse($exam->date . ' ' . $exam->time);
+
+    // إذا لم يحن وقت الامتحان بعد
+    // if (Carbon::now()->lt($examDateTime)) {
+    //     return response()->json(['message' => 'You cannot access the exam before its scheduled time.'], 403);
+    // }
 
     $data = [
         'testName' => $exam->title,
-        'testHour'=> $exam->time,
-        'testDate'=> $exam->date,
+        'testHour' => $exam->time,
+        'testDate' => $exam->date,
         'questions' => $exam->questions ? $exam->questions->map(function ($question) {
             return [
                 'id' => $question->id,
@@ -115,7 +124,6 @@ public function index()
                     return [
                         'id' => $answer->id,
                         'text' => $answer->answer_text,
-
                     ];
                 }) : [],
             ];
@@ -124,6 +132,7 @@ public function index()
 
     return response()->json(['exam' => $data]);
 }
+
 
 
     // Update exam
@@ -240,18 +249,27 @@ public function update(Request $request, $examId)
 }
 
 
-    public function destroy($id)
-    {
-        $exam = Exam::find($id);
 
-        if (!$exam) {
-            return response()->json(['message' => 'Exam not found'], 404);
-        }
+public function destroy($id)
+{
+    $exam = Exam::find($id);
 
-        $exam->delete();
-
-        return response()->json(['message' => 'Exam deleted successfully']);
+    if (!$exam) {
+        return response()->json(['message' => 'Exam not found'], 404);
     }
+
+    // دمج التاريخ والوقت لإنشاء تاريخ ووقت كامل للامتحان
+    $examDateTime = Carbon::parse($exam->date . ' ' . $exam->time);
+
+    // التحقق مما إذا كان الامتحان قد مضى
+    if ($examDateTime <= Carbon::now()) {
+        return response()->json(['message' => 'You cannot delete an exam that has already started or passed.'], 403);
+    }
+
+    $exam->delete();
+
+    return response()->json(['message' => 'Exam deleted successfully']);
+}
 
 
 
