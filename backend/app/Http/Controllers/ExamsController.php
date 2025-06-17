@@ -17,11 +17,20 @@ class ExamsController extends Controller
 
 public function index()
 {
-    // الحصول على تاريخ اليوم
+
+    $user = Auth::user();
+
     $today = Carbon::today();
 
-    // جلب الامتحانات من اليوم وما بعده
-    $exams = Exam::whereDate('date', '>=', $today)->get();
+    $query = Exam::whereDate('date', '>=', $today);
+
+    if ($user->role === 'student') {
+        $query->whereDoesntHave('results', function ($q) use ($user) {
+            $q->where('user_id', $user->id);
+        });
+    }
+
+    $exams = $query->get();
 
     // تنسيق البيانات
     $exams = $exams->map(function ($exam) {
@@ -40,7 +49,6 @@ public function index()
         'exams' => $exams
     ]);
 }
-
   public function create(Request $request)
 {
     $teacher = Teacher::where('user_id',Auth::id())->first();
