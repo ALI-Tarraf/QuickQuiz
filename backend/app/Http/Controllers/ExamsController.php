@@ -96,6 +96,8 @@ public function index()
 
     $data = [
         'testName' => $exam->title,
+        'testHour'=> $exam->time,
+        'testDate'=> $exam->date,
         'questions' => $exam->questions ? $exam->questions->map(function ($question) {
             return [
                 'id' => $question->id,
@@ -117,7 +119,7 @@ public function index()
 
 
     // Update exam
- public function update(Request $request, $examId)
+public function update(Request $request, $examId)
 {
     $teacher = Teacher::where('user_id', Auth::id())->first();
     if (!$teacher) {
@@ -126,9 +128,40 @@ public function index()
 
     DB::beginTransaction();
     try {
-        $exam = Exam::where('id', $examId)
-                    ->where('teacher_id', $teacher->id)
-                    ->firstOrFail();
+        $exam = Exam::find($examId);
+
+        if (!$exam) {
+            return response()->json([
+                'error' => 'الامتحان غير موجود',
+                'message' => 'لم يتم العثور على الامتحان.'
+            ], 404);
+        }
+
+        if ($exam->teacher_id !== $teacher->id) {
+            return response()->json([
+                'error' => 'No permissions',
+                'message' => 'This exam is not for this teacher'
+            ], 403);
+        }
+
+        // التحقق من وجود التاريخ والوقت
+        if (empty($exam->date) || empty($exam->time)) {
+            return response()->json([
+                'error' => 'بيانات وقت الامتحان غير مكتملة',
+                'message' => 'لا يمكن التحقق من توقيت الامتحان لعدم توفر التاريخ أو الوقت.'
+            ], 400);
+        }
+
+        // منع التعديل بعد بدء الامتحان
+        $currentExamDateTime = Carbon::parse($exam->date . ' ' . $exam->time);
+        $now = Carbon::now();
+
+        if ($now->gte($currentExamDateTime)) {
+            return response()->json([
+                'error' => 'The exam cannot be updated',
+                'message' => 'The exam has already started'
+            ], 400);
+        }
 
         // تحديث معلومات الامتحان
         $exam->update([
@@ -153,7 +186,6 @@ public function index()
         // معالجة الأسئلة الجديدة أو المعدلة
         foreach ($request->exam['questions'] as $qData) {
             if (isset($qData['id'])) {
-                // تعديل
                 $question = Question::where('id', $qData['id'])
                                     ->where('exam_id', $exam->id)
                                     ->first();
@@ -163,9 +195,14 @@ public function index()
                         'mark' => $qData['mark'],
                     ]);
                     QuestionAnswers::where('question_id', $question->id)->delete();
+                } else {
+                    $question = Question::create([
+                        'exam_id' => $exam->id,
+                        'question_text' => $qData['question'],
+                        'mark' => $qData['mark'],
+                    ]);
                 }
             } else {
-                // إنشاء
                 $question = Question::create([
                     'exam_id' => $exam->id,
                     'question_text' => $qData['question'],
@@ -173,7 +210,6 @@ public function index()
                 ]);
             }
 
-            // إضافة الإجابات
             foreach ($qData['options'] as $option) {
                 QuestionAnswers::create([
                     'question_id' => $question->id,
@@ -189,11 +225,12 @@ public function index()
     } catch (\Exception $e) {
         DB::rollBack();
         return response()->json([
-            'error' => 'فشل في تحديث الامتحان',
+            'error' => 'Failed to update exam',
             'message' => $e->getMessage()
         ], 500);
     }
 }
+
 
     public function destroy($id)
     {
@@ -213,8 +250,15 @@ public function index()
 
 public function getUpcomingExamsToday()
 {
-    // جلب الامتحانات التي لم تبدأ بعد (الوقت الحالي لم يصل إليها)
+    $teacher = Teacher::where('user_id', Auth::id())->first();
+
+    if (!$teacher) {
+        return response()->json(['error' => 'Teacher doesn\'t exist'], 404);
+    }
+
+    // جلب الامتحانات التي لم تبدأ بعد والخاصة بالمدرس الحالي
     $exams = DB::table('exams')
+        ->where('teacher_id', $teacher->id)
         ->whereRaw("STR_TO_DATE(CONCAT(date, ' ', time), '%Y-%m-%d %H:%i:%s') > NOW()")
         ->orderBy('date')
         ->orderBy('time')
@@ -222,6 +266,7 @@ public function getUpcomingExamsToday()
 
     return response()->json($exams);
 }
+
 
 
 
