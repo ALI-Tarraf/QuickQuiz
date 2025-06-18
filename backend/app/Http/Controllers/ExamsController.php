@@ -94,7 +94,6 @@ public function index()
 
 
 
-
 public function show($id)
 {
     $exam = Exam::with('questions.questionAnswers')->find($id);
@@ -103,14 +102,35 @@ public function show($id)
         return response()->json(['message' => 'Exam not found'], 404);
     }
 
-    // دمج التاريخ والوقت لإنشاء وقت الامتحان الكامل
-    $examDateTime = Carbon::parse($exam->date . ' ' . $exam->time);
+    $user = Auth::user();
 
-    // إذا لم يحن وقت الامتحان بعد
-    // if (Carbon::now()->lt($examDateTime)) {
-    //     return response()->json(['message' => 'You cannot access the exam before its scheduled time.'], 403);
-    // }
+    // دمج التاريخ والوقت لوقت بداية الامتحان
+    $startDateTime = Carbon::parse($exam->date . ' ' . $exam->time);
 
+    // حساب وقت نهاية الامتحان
+    $endDateTime = $startDateTime->copy()->addMinutes($exam->duration_minutes);
+
+    // التحقق مما إذا كان المستخدم طالب (وليس أستاذًا)
+    if ($user->role === 'student') {
+
+        // إذا الوقت الحالي بعد انتهاء الامتحان
+        if (Carbon::now()->gt($endDateTime)) {
+            return response()->json(['message' => 'You cannot access the exam. The exam time has ended.'], 403);
+        }
+
+           // إذا الوقت الحالي قبل بدء الامتحان
+    if (Carbon::now()->lt($startDateTime)) {
+        return response()->json(['message' => 'You cannot access the exam before its start time.'], 403);
+    }
+
+        // أو إذا الطالب قدم الامتحان (له نتيجة)
+        $hasResult = $exam->results()->where('user_id', $user->id)->exists();
+        if ($hasResult) {
+            return response()->json(['message' => 'You have already submitted this exam.'], 403);
+        }
+    }
+
+    // تجهيز البيانات للإرجاع
     $data = [
         'testName' => $exam->title,
         'testHour' => $exam->time,
@@ -258,11 +278,13 @@ public function destroy($id)
         return response()->json(['message' => 'Exam not found'], 404);
     }
 
-    // دمج التاريخ والوقت لإنشاء تاريخ ووقت كامل للامتحان
     $examDateTime = Carbon::parse($exam->date . ' ' . $exam->time);
+    $now = Carbon::now();
 
-    // التحقق مما إذا كان الامتحان قد مضى
-    if ($examDateTime <= Carbon::now()) {
+    // تتبع القيم
+    logger("Exam DateTime: $examDateTime | Now: $now");
+
+    if ($examDateTime <= $now) {
         return response()->json(['message' => 'You cannot delete an exam that has already started or passed.'], 403);
     }
 
