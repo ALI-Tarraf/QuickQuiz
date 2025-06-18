@@ -229,82 +229,57 @@ public function update(Request $request, $examId)
 
         // منع التعديل بعد بدء الامتحان
         $currentExamDateTime = Carbon::parse($exam->date . ' ' . $exam->time);
-        $now = Carbon::now();
-
-        if ($now->gte($currentExamDateTime)) {
+        if (Carbon::now()->gte($currentExamDateTime)) {
             return response()->json([
                 'error' => 'The exam cannot be updated',
-                'message' => 'The exam has already started'
+                'message' => 'Update failed, The exam has already started'
             ], 400);
         }
 
         // تحديث معلومات الامتحان
         $exam->update([
-            'title' => $request->exam['testName'],
-            'date' => $request->exam['date'],
-            'time' => $request->exam['time'],
-            'duration_minutes' => $request->exam['duration'],
+            'title' => $request->testName,
+            'date' => $request->testDate,
+            'time' => $request->testHour,
+            'duration_minutes' => $request->testDuration,
         ]);
 
-        // الأسئلة القديمة
+        // حذف جميع الأسئلة والإجابات القديمة
         $existingQuestions = Question::where('exam_id', $exam->id)->get();
-        $newIds = collect($request->exam['questions'])->pluck('id')->filter()->toArray();
-
-        // حذف الأسئلة غير الموجودة في الطلب
         foreach ($existingQuestions as $q) {
-            if (!in_array($q->id, $newIds)) {
-                QuestionAnswers::where('question_id', $q->id)->delete();
-                $q->delete();
-            }
+            QuestionAnswers::where('question_id', $q->id)->delete();
+            $q->delete();
         }
 
-        // معالجة الأسئلة الجديدة أو المعدلة
-        foreach ($request->exam['questions'] as $qData) {
-            if (isset($qData['id'])) {
-                $question = Question::where('id', $qData['id'])
-                                    ->where('exam_id', $exam->id)
-                                    ->first();
-                if ($question) {
-                    $question->update([
-                        'question_text' => $qData['question'],
-                        'mark' => $qData['mark'],
-                    ]);
-                    QuestionAnswers::where('question_id', $question->id)->delete();
-                } else {
-                    $question = Question::create([
-                        'exam_id' => $exam->id,
-                        'question_text' => $qData['question'],
-                        'mark' => $qData['mark'],
-                    ]);
-                }
-            } else {
-                $question = Question::create([
-                    'exam_id' => $exam->id,
-                    'question_text' => $qData['question'],
-                    'mark' => $qData['mark'],
-                ]);
-            }
+        // إضافة الأسئلة والإجابات الجديدة
+        foreach ($request->questions as $qData) {
+            $question = Question::create([
+                'exam_id' => $exam->id,
+                'question_text' => $qData['questionText'],
+                'mark' => $qData['questionScore'],
+            ]);
 
-            foreach ($qData['options'] as $option) {
+            foreach ($qData['options'] as $optionText) {
                 QuestionAnswers::create([
                     'question_id' => $question->id,
-                    'answer_text' => $option['text'],
-                    'is_correct' => $option['text'] === $qData['correctAnswer']
+                    'answer_text' => $optionText,
+                    'is_correct' => $optionText === $qData['correctAnswer']
                 ]);
             }
         }
 
         DB::commit();
-        return response()->json(['success' => true, 'message' => 'تم تحديث الامتحان بنجاح.']);
+        return response()->json(['success' => true, 'message' => 'The test has been successfully modified']);
 
     } catch (\Exception $e) {
         DB::rollBack();
         return response()->json([
-            'error' => 'Failed to update exam',
+            'error' => 'Failed to update test',
             'message' => $e->getMessage()
         ], 500);
     }
 }
+
 
 
 
