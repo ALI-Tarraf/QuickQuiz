@@ -111,24 +111,24 @@ public function show($id)
     $endDateTime = $startDateTime->copy()->addMinutes($exam->duration_minutes);
 
     // التحقق مما إذا كان المستخدم طالب (وليس أستاذًا)
-    if ($user->role === 'student') {
+    // if ($user->role === 'student') {
 
-        // إذا الوقت الحالي بعد انتهاء الامتحان
-        if (Carbon::now()->gt($endDateTime)) {
-            return response()->json(['message' => 'You cannot access the exam. The exam time has ended.'], 403);
-        }
+    //     // إذا الوقت الحالي بعد انتهاء الامتحان
+    //     if (Carbon::now()->gt($endDateTime)) {
+    //         return response()->json(['message' => 'You cannot access the exam. The exam time has ended.'], 403);
+    //     }
 
-           // إذا الوقت الحالي قبل بدء الامتحان
-    if (Carbon::now()->lt($startDateTime)) {
-        return response()->json(['message' => 'You cannot access the exam before its start time.'], 403);
-    }
+    //        // إذا الوقت الحالي قبل بدء الامتحان
+    // if (Carbon::now()->lt($startDateTime)) {
+    //     return response()->json(['message' => 'You cannot access the exam before its start time.'], 403);
+    // }
 
-        // أو إذا الطالب قدم الامتحان (له نتيجة)
-        $hasResult = $exam->results()->where('user_id', $user->id)->exists();
-        if ($hasResult) {
-            return response()->json(['message' => 'You have already submitted this exam.'], 403);
-        }
-    }
+    //     // أو إذا الطالب قدم الامتحان (له نتيجة)
+    //     $hasResult = $exam->results()->where('user_id', $user->id)->exists();
+    //     if ($hasResult) {
+    //         return response()->json(['message' => 'You have already submitted this exam.'], 403);
+    //     }
+    // }
 
     // تجهيز البيانات للإرجاع
     $data = [
@@ -154,6 +154,44 @@ public function show($id)
 }
 
 
+
+
+public function get($id)
+{
+    $exam = Exam::with('questions.questionAnswers')->find($id);
+
+    if (!$exam) {
+        return response()->json(['message' => 'Exam not found'], 404);
+    }
+
+    $user = Auth::user();
+
+    $data = [
+        'testName' => $exam->title,
+        'testDuration' => $exam->duration_minutes,
+        'testHour' => $exam->time,
+        'testDate' => $exam->date,
+        'totalMark' => $exam->total_marks,
+        'questions' => $exam->questions ? $exam->questions->map(function ($question) {
+            return [
+                'questionText' => $question->question_text,
+                'questionScore' => $question->mark,
+
+                // الخيارات
+                'options' => $question->questionAnswers ? $question->questionAnswers->map(function ($answer) {
+                    return
+                        $answer->answer_text
+                    ;
+                }) : [],
+
+                // الجواب الصحيح
+                'correctAnswer' => optional($question->questionAnswers->firstWhere('is_correct', 1))->answer_text,
+            ];
+        }) : [],
+    ];
+
+    return response()->json(['exam' => $data]);
+}
 
     // Update exam
 public function update(Request $request, $examId)
