@@ -46,12 +46,12 @@ const NavBar = () => {
       icon: <RuleIcon />,
       private: false,
     },
-    {
-      name: "Create Test",
-      path: "/createtest",
-      icon: <EditNoteIcon />,
-      private: true,
-    },
+    // {
+    //   name: "Create Test",
+    //   path: "/createtest",
+    //   icon: <EditNoteIcon />,
+    //   private: true,
+    // },
     {
       name: "Tests Dashboard ",
       path: "/testsdashboard",

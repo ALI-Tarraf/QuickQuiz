@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
 import Loader from "./Loader";
 import Errorpage from "./ErrorPage";
+import NoResultsPage from "./NoResultsPage";
 
 const TeacherTestResults = () => {
   const { isLoading, error, finshedtests } = useSelector(
@@ -17,6 +18,7 @@ const TeacherTestResults = () => {
   }, [dispatch]);
   if (isLoading) return <Loader />;
   if (error) return <Errorpage />;
+  if (finshedtests?.length == 0) return <NoResultsPage />;
   return (
     <>
       <Grid

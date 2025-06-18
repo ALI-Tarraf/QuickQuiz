@@ -36,7 +36,7 @@ axiosInstance.interceptors.response.use(
       localStorage.removeItem("access_token");
 
       // Redirect to login page
-      // window.location.href = "/"; // Adjust path as needed
+      window.location.href = "/"; // Adjust path as needed
     }
 
     return Promise.reject(error);

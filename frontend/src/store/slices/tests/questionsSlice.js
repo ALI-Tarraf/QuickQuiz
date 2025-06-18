@@ -18,13 +18,34 @@ export const getQuestions = createAsyncThunk(
     }
   }
 );
-
+// Submit Answers
+export const submitAnswers = createAsyncThunk(
+  "questions/submitAnswers",
+  async (params, thunkAPI) => {
+    const { rejectWithValue } = thunkAPI;
+    try {
+      const res = await axios.post(
+        `/tests/answer/${params.id}`,
+        params.result ?? []
+      );
+      if (res.status === 200) {
+        return {
+          data: res.data,
+        };
+      }
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  }
+);
 const questionsSlice = createSlice({
   name: "questions",
 
   initialState: {
     isLoading: false,
     error: null,
+    submitIsLoading: false,
+    submitError: null,
     questionsData: {
       testName: "",
       questions: [],
@@ -37,6 +58,7 @@ const questionsSlice = createSlice({
     questionsOperationCompleted: (state) => {
       state.status = false;
       state.error = null;
+      state.submitError = null;
       state.message = "";
     },
   },
@@ -56,6 +78,24 @@ const questionsSlice = createSlice({
       .addCase(getQuestions.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
+      });
+    // Submit Answers
+    builder
+      .addCase(submitAnswers.pending, (state) => {
+        state.submitError = null;
+        state.submitIsLoading = true;
+      })
+      .addCase(submitAnswers.fulfilled, (state) => {
+        state.submitError = null;
+        state.submitIsLoading = false;
+        state.status = true;
+        state.message = "Answers submited successfully";
+      })
+      .addCase(submitAnswers.rejected, (state, action) => {
+        state.submitIsLoading = false;
+        state.submitError = action.payload;
+        state.status = true;
+        state.message = "There is an error please try again letter";
       });
   },
 });

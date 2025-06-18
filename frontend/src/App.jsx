@@ -18,6 +18,7 @@ import {
 import OperationAlert from "./components/OperationAlert";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import TestsDashboard from "./views/TestsDashboard";
+import UpdateTest from "./views/UpdateTest";
 
 function App() {
   const dispatch = useDispatch();
@@ -47,6 +48,14 @@ function App() {
             <Route path="/testspage" element={<TestsPage />} />
             <Route path="/testresults" element={<TestResults />} />
             <Route
+              path="/testresults/:id"
+              element={
+                <RoleProtectedRoute roles={["teacher"]}>
+                  <TestResultDetails />
+                </RoleProtectedRoute>
+              }
+            />
+            <Route
               path="/createtest"
               element={
                 <RoleProtectedRoute roles={["teacher"]}>
@@ -63,10 +72,10 @@ function App() {
               }
             />
             <Route
-              path="/testresults/:id"
+              path="/testsdashboard/:id"
               element={
                 <RoleProtectedRoute roles={["teacher"]}>
-                  <TestResultDetails />
+                  <UpdateTest />
                 </RoleProtectedRoute>
               }
             />

@@ -1,65 +1,37 @@
 import { Box, Button, Grid, Typography } from "@mui/material";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import ModifyTestsCard from "../components/ModifyTestsCard";
+import { useEffect } from "react";
+import Loader from "../components/Loader";
+import Errorpage from "../components/ErrorPage";
+import {
+  getUpcomingTests,
+  testsOperationCompleted,
+} from "../store/slices/tests/testsSlice";
+import NoResultsPage from "../components/NoResultsPage";
+import OperationAlert from "../components/OperationAlert";
 
 const TestsDashboard = () => {
   const { user } = useSelector((state) => state.auth);
+  const { isLoading, error, operationError, upcomingTests, status, message } =
+    useSelector((state) => state.tests);
 
-  const exams = [
-    {
-      id: 1,
-      title: "Midterm Exam - CS101",
-      date: "May 10, 2025",
-      time: "10:47 AM",
-      instructor: "Dr. Jane Smith",
-      duration: "60 mins",
-      totalMarks: 100,
-      status: "available",
-    },
-    {
-      id: 2,
-      title: "Final Exam - Math 202",
-      date: "June 1, 2025",
-      time: "10:47 AM",
-      instructor: "Prof. Ahmed Khan",
-      duration: "90 mins",
-      totalMarks: 150,
-      status: "not available",
-    },
-    {
-      id: 3,
-      title: "Quiz - Biology 110",
-      date: "May 5, 2025",
-      time: "10:47 AM",
-      instructor: "Dr. Lina Park",
-      duration: "30 mins",
-      totalMarks: 50,
-      status: "available",
-    },
-    {
-      id: 4,
-      title: "Practice Test - History 301",
-      date: "May 15, 2025",
-      time: "10:47 AM",
-      instructor: "Dr. George Miller",
-      duration: "45 mins",
-      totalMarks: 75,
-      status: "available",
-    },
-    {
-      id: 5,
-      title: "Mock Exam - Physics 205",
-      date: "May 20, 2025",
-      time: "10:47 AM",
-      instructor: "Prof. Fatima Noor",
-      duration: "120 mins",
-      totalMarks: 200,
-      status: "not available",
-    },
-  ];
+  const dispatch = useDispatch();
+  useEffect(() => {
+    dispatch(getUpcomingTests());
+  }, [dispatch]);
+
+  if (isLoading) return <Loader />;
+  if (error) return <Errorpage />;
 
   return (
     <Box sx={{ px: { xs: 1, sm: 3 } }}>
+      <OperationAlert
+        status={status}
+        error={operationError}
+        message={message}
+        completedAction={testsOperationCompleted}
+      />
       <Box>
         <Typography
           sx={{
@@ -110,17 +82,21 @@ const TestsDashboard = () => {
             Create new test
           </Button>
         </Box>
-        <Grid
-          container
-          spacing={{ xs: "10px", sm: "28px" }}
-          sx={{ py: { xs: "20px", sm: "30px" } }}
-        >
-          {exams.map((test, idx) => (
-            <Grid item xs={12} md={6} lg={4} xl={3} key={idx}>
-              <ModifyTestsCard value={test} />
-            </Grid>
-          ))}
-        </Grid>
+        {upcomingTests?.length === 0 ? (
+          <NoResultsPage message="There are no tests to edit or delete yet" />
+        ) : (
+          <Grid
+            container
+            spacing={{ xs: "10px", sm: "28px" }}
+            sx={{ py: { xs: "20px", sm: "30px" } }}
+          >
+            {upcomingTests?.map((test, idx) => (
+              <Grid item xs={12} md={6} lg={4} xl={3} key={idx}>
+                <ModifyTestsCard value={test} />
+              </Grid>
+            ))}
+          </Grid>
+        )}
       </Box>
     </Box>
   );

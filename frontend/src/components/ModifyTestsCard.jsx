@@ -12,9 +12,11 @@ import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import DescriptionIcon from "@mui/icons-material/Description";
 import TimerOutlinedIcon from "@mui/icons-material/TimerOutlined";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import { useDispatch } from "react-redux";
+import { deleteTest } from "../store/slices/tests/testsSlice";
 const ModifyTestsCard = ({ value }) => {
   const { id, title, date, time, duration_minutes, total_marks } = value;
-
+  const dispatch = useDispatch();
   return (
     <>
       <Card
@@ -110,6 +112,7 @@ const ModifyTestsCard = ({ value }) => {
                 py: 1,
                 width: "100%",
               }}
+              href={`/testsdashboard/${id}`}
               startIcon={<EditIcon />}
             >
               Edit test
@@ -125,6 +128,7 @@ const ModifyTestsCard = ({ value }) => {
                 width: "100%",
               }}
               startIcon={<DeleteIcon />}
+              onClick={() => dispatch(deleteTest(id))}
             >
               Delete test
             </Button>

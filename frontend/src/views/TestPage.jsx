@@ -39,7 +39,7 @@ const TestPage = () => {
   const dispatch = useDispatch();
   useEffect(() => {
     dispatch(getQuestions(id));
-    console.log(questionsData);
+
     setShuffled(
       shuffleArray(questionsData?.questions && questionsData?.questions)
     );
@@ -100,8 +100,9 @@ const TestPage = () => {
         <Typography
           sx={{
             color: "white",
+            textAlign: "center",
             fontSize: {
-              xs: "h5.fontSize",
+              xs: "h6.fontSize",
               sm: "h4.fontSize",
             },
           }}
@@ -167,7 +168,7 @@ const TestPage = () => {
             </RadioGroup>
           </Paper>
         ))}
-        <TestPageModal result={result} />
+        <TestPageModal result={result} id={id} />
       </Container>
     </>
   );

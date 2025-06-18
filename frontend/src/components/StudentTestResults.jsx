@@ -18,6 +18,7 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Loader from "./Loader";
 import Errorpage from "./ErrorPage";
+import NoResultsPage from "./NoResultsPage";
 
 const StudentTestResults = () => {
   const { isLoading, error, studentResults } = useSelector(
@@ -40,7 +41,6 @@ const StudentTestResults = () => {
   }, [dispatch]);
 
   useEffect(() => {
-    console.log(studentResults);
     const newFiltered = studentResults?.filter((student) => {
       const percentage = (student.score / student.total_marks) * 100;
       if (filter === "pass") return percentage >= 60;
@@ -52,6 +52,7 @@ const StudentTestResults = () => {
   if (isLoading) return <Loader />;
 
   if (error) return <Errorpage />;
+  if (studentResults?.length == 0) return <NoResultsPage />;
 
   return (
     <>
@@ -65,6 +66,7 @@ const StudentTestResults = () => {
       >
         Test Results
       </Typography>
+
       <Box sx={{ p: { xs: 1, sm: 2, md: 4 } }}>
         <ToggleButtonGroup
           value={filter}
@@ -93,15 +95,7 @@ const StudentTestResults = () => {
                 >
                   Name
                 </TableCell>
-                <TableCell
-                  align="center"
-                  sx={{
-                    fontSize: { xs: "17px", md: "25px" },
-                    fontWeight: "bold",
-                  }}
-                >
-                  ID
-                </TableCell>
+
                 <TableCell
                   align="center"
                   sx={{
@@ -142,15 +136,6 @@ const StudentTestResults = () => {
                     }}
                   >
                     {student.exam_title}
-                  </TableCell>
-                  <TableCell
-                    align="center"
-                    sx={{
-                      fontSize: { xs: "15px", md: "17px" },
-                      fontWeight: { xs: 400, md: 500 },
-                    }}
-                  >
-                    {student.id}
                   </TableCell>
                   <TableCell
                     align="center"

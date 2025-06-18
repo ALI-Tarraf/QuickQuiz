@@ -5,16 +5,20 @@ import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
 import Loader from "../components/Loader";
 import Errorpage from "../components/ErrorPage";
+import NoResultsPage from "../components/NoResultsPage";
 const TestsPage = () => {
   const { isLoading, error, tests } = useSelector((state) => state.tests);
 
   const dispatch = useDispatch();
   useEffect(() => {
     dispatch(getTests());
+    console.log(tests);
   }, [dispatch]);
 
   if (isLoading) return <Loader />;
   if (error) return <Errorpage />;
+  if (tests.length == 0)
+    return <NoResultsPage message="There are no tests yet" />;
 
   // const date = dayjs("2025-06-14", "DD-MM-YYYY").toDate();
   // const dateOnly = new Date().toLocaleDateString("en-CA");

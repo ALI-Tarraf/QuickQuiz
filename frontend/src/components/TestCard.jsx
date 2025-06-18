@@ -15,7 +15,8 @@ import AccessTimeIcon from "@mui/icons-material/AccessTime";
 const TestCard = ({ value, isInResultsPage = false }) => {
   const { id, title, date, time, teacher_name, duration_minutes, total_marks } =
     value;
-  const status = date > new Date().toLocaleDateString("en-CA");
+  // const status = date == new Date().toLocaleDateString("en-CA");
+  const status = true;
 
   return (
     <>
