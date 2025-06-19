@@ -97,7 +97,7 @@ function UpdateTest() {
   }, [testInfo]);
 
   const submitHandler = (values) => {
-    dispatch(editTest(id));
+    dispatch(editTest({ id, values }));
     console.log(values);
   };
   if (isLoading) return <Loader />;

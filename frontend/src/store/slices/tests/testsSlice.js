@@ -126,7 +126,7 @@ export const editTest = createAsyncThunk(
   async (params, thunkAPI) => {
     const { rejectWithValue } = thunkAPI;
     try {
-      const res = await axios.put(`/tests/${params}`);
+      const res = await axios.put(`/tests/${params.id}`, params.values);
       if (res.status === 200) {
         return {
           data: res.data,
@@ -304,13 +304,11 @@ const tsetsSlice = createSlice({
         state.operationError = null;
         state.operationLoading = true;
       })
-      .addCase(editTest.fulfilled, (state, action) => {
+      .addCase(editTest.fulfilled, (state) => {
         state.operationError = null;
         state.operationLoading = false;
         state.status = true;
-        state.message =
-          action.payload.response.data.message ||
-          "The test has been successfully modified";
+        state.message = "The test has been successfully modified";
       })
       .addCase(editTest.rejected, (state, action) => {
         state.operationLoading = false;
