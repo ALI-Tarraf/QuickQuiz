@@ -114,7 +114,9 @@ public function show($id)
     // if ($user->role === 'student') {
 
     //     // إذا الوقت الحالي بعد انتهاء الامتحان
-    //     if (Carbon::now()->gt($endDateTime)) {
+    //     $graceEndTime = $endDateTime->copy()->addMinutes(5);
+    //if (Carbon::now()->gt($graceEndTime)) {
+
     //         return response()->json(['message' => 'You cannot access the exam. The exam time has ended.'], 403);
     //     }
 
@@ -135,6 +137,7 @@ public function show($id)
         'testName' => $exam->title,
         'testHour' => $exam->time,
         'testDate' => $exam->date,
+        'testDuration' => $exam->duration_minutes,
         'questions' => $exam->questions ? $exam->questions->map(function ($question) {
             return [
                 'id' => $question->id,
