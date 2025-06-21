@@ -12,11 +12,32 @@ import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import DescriptionIcon from "@mui/icons-material/Description";
 import TimerOutlinedIcon from "@mui/icons-material/TimerOutlined";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import { useEffect, useState } from "react";
 const TestCard = ({ value, isInResultsPage = false }) => {
   const { id, title, date, time, teacher_name, duration_minutes, total_marks } =
     value;
-  // const status = date == new Date().toLocaleDateString("en-CA");
-  const status = true;
+
+  const checkDate = date == new Date().toLocaleDateString("en-CA");
+
+  const [status, setStatus] = useState(false);
+
+  const now = new Date();
+
+  const [hours, minutes, seconds] = time.split(":").map(Number);
+
+  const testTime = new Date();
+  testTime.setHours(hours, minutes, seconds, 0);
+
+  const allowedTime = new Date();
+  allowedTime.setHours(hours, minutes + 5, seconds, 0);
+
+  useEffect(() => {
+    if (testTime <= now && now < allowedTime && checkDate) {
+      setStatus(true);
+    } else {
+      setStatus(false);
+    }
+  }, []);
 
   return (
     <>

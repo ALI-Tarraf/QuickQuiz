@@ -256,9 +256,11 @@ function CreateTest() {
                       setFieldValue("testHour", event.target.value);
                     }}
                     value={values.testHour}
-                    inputProps={{
-                      min: minTime,
-                    }}
+                    inputProps={
+                      values.testDate == new Date().toLocaleDateString("en-CA")
+                        ? { min: minTime } // if true, apply min
+                        : {}
+                    }
                     error={!!errors?.testHour}
                     helperText={errors?.testHour ? errors?.testHour : ""}
                   />

@@ -52,11 +52,12 @@ export default function TestPageModal({ result, id }) {
   const handleExit = () => {
     dispatch(submitAnswers({ id }));
     navigate("/testresults", { replace: true });
+    sessionStorage.clear();
   };
   const handleSubmit = () => {
-    console.log(result);
     dispatch(submitAnswers({ id, result }));
     navigate("/testresults", { replace: true });
+    sessionStorage.clear();
   };
 
   const getModalContent = () => {
