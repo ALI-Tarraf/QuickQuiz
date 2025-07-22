@@ -6,6 +6,7 @@ import backgroundImage from "../assets/intro1.jpg";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { register } from "../store/slices/auth/authSlice";
 import {
+  Avatar,
   Box,
   Button,
   Checkbox,
@@ -21,6 +22,8 @@ import { useNavigate } from "react-router-dom";
 
 const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
+
   const { isLoading, user } = useSelector((state) => state.auth);
 
   const dispatch = useDispatch();
@@ -53,6 +56,25 @@ const Signup = () => {
       is: true,
       then: (schema) => schema.required("Specialization is required"),
     }),
+    img: yup
+      .mixed()
+      .test("fileType", "Unsupported file format", (value) => {
+        if (!value) return true;
+        return (
+          value &&
+          [
+            "image/jpeg",
+            "image/png",
+            "image/svg",
+            "image/jpg",
+            "image/gif",
+          ].includes(value.type)
+        );
+      })
+      .test("fileSize", "File is too large", (value) => {
+        if (!value) return true;
+        return value && value.size <= 2 * 1024 * 1024;
+      }),
   });
 
   const initialValues = {
@@ -63,49 +85,34 @@ const Signup = () => {
     confirm_password: "",
     is_teacher: false,
     spec: "",
+    img: "",
   };
   const submitHandler = (values) => {
     delete values["confirm_password"];
-    if (!values.is_teacher) {
-      delete values["spec"];
-      console.log({
-        first_name: values.first_name,
-        last_name: values.last_name,
-        email: values.email,
-        password: values.password,
-        role: "student",
-      });
-      dispatch(
-        register({
-          first_name: values.first_name,
-          last_name: values.last_name,
-          email: values.email,
-          password: values.password,
-          role: "student",
-        })
-      );
-    } else {
-      console.log({
-        first_name: values.first_name,
-        last_name: values.last_name,
-        email: values.email,
-        password: values.password,
-        role: "teacher",
-        specialization: values.spec,
-      });
-      dispatch(
-        register({
-          first_name: values.first_name,
-          last_name: values.last_name,
-          email: values.email,
-          password: values.password,
-          role: "teacher",
-          specialization: values.spec,
-        })
-      );
+    const formData = new FormData();
+    formData.append("first_name", values.first_name);
+    formData.append("last_name", values.last_name);
+    formData.append("email", values.email);
+    formData.append("password", values.password);
+    formData.append("role", values.is_teacher ? "teacher" : "student");
+    formData.append("img", values.img);
+    if (values.is_teacher) {
+      formData.append("specialization", values.spec);
     }
+    console.log(formData);
+    dispatch(register(formData));
   };
 
+  const handleImageChange = (event) => {
+    const file = event.target.files[0];
+    if (file && file.type.startsWith("image/")) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setSelectedImage(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
   useEffect(() => {
     if (user) navigate("/");
   }, [user, navigate]);
@@ -161,11 +168,41 @@ const Signup = () => {
                     borderRadius: 7,
                   }}
                 >
-                  <Typography variant="h6" sx={{ textAlign: "center", mb: 4 }}>
+                  <Typography variant="h6" sx={{ textAlign: "center", mb: 2 }}>
                     Create an account
                   </Typography>
 
                   <Stack direction="column" spacing={3.5}>
+                    <Stack spacing={2} alignItems="center">
+                      <Avatar
+                        src={selectedImage}
+                        sx={{ width: 120, height: 120 }}
+                      />
+                      <input
+                        accept="image/*"
+                        style={{ display: "none" }}
+                        id="upload-photo"
+                        type="file"
+                        onChange={(event) => {
+                          handleImageChange(event);
+                          props.values.img = event.target.files[0];
+                        }}
+                      />
+                      <label htmlFor="upload-photo">
+                        <Button
+                          variant="contained"
+                          component="span"
+                          sx={{ backgroundColor: "rgba(8,81,98,1)" }}
+                        >
+                          Choose Photo
+                        </Button>
+                      </label>
+                      {props.errors.img ? (
+                        <Typography color="red">{props.errors.img}</Typography>
+                      ) : (
+                        ""
+                      )}
+                    </Stack>
                     <Stack direction="row" spacing={1}>
                       <TextField
                         name="first_name"

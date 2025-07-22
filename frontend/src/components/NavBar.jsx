@@ -1,5 +1,6 @@
 import {
   AppBar,
+  Avatar,
   Box,
   Button,
   Divider,
@@ -19,7 +20,6 @@ import { useState } from "react";
 import MenuIcon from "@mui/icons-material/Menu";
 import QuizIcon from "@mui/icons-material/Quiz";
 import RuleIcon from "@mui/icons-material/Rule";
-import EditNoteIcon from "@mui/icons-material/EditNote";
 import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
 import DashboardRoundedIcon from "@mui/icons-material/DashboardRounded";
 import { NavLink, useNavigate } from "react-router-dom";
@@ -30,6 +30,10 @@ import logo from "../assets/logo.png";
 const NavBar = () => {
   const [drawerIsVisible, setDrawerIsVisible] = useState(false);
   const { user } = useSelector((state) => state.auth);
+  console.log(user);
+  {
+    console.log(`http://127.0.0.1:8000/${user?.img}`);
+  }
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -46,12 +50,7 @@ const NavBar = () => {
       icon: <RuleIcon />,
       private: false,
     },
-    // {
-    //   name: "Create Test",
-    //   path: "/createtest",
-    //   icon: <EditNoteIcon />,
-    //   private: true,
-    // },
+
     {
       name: "Tests Dashboard ",
       path: "/testsdashboard",
@@ -141,6 +140,17 @@ const NavBar = () => {
             })}
           </Stack>
           <Stack direction="row" spacing={1} alignItems="center">
+            <Avatar
+              src={`http://127.0.0.1:8000/storage/${user?.img}`}
+              sx={{
+                width: 50,
+                height: 50,
+                display: {
+                  xs: "none",
+                  md: "flex",
+                },
+              }}
+            />
             <Typography
               sx={{
                 display: {
@@ -220,13 +230,29 @@ const NavBar = () => {
             background: "#272727",
           }}
         >
-          <Typography
-            variant="h6"
-            sx={{ fontWeight: "500", color: "white", padding: "1rem" }}
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              padding: "1rem",
+            }}
           >
-            {user?.role === "teacher" ? "Mr. " : ""}
-            {user?.first_name.toUpperCase()} {user?.last_name.toUpperCase()}
-          </Typography>
+            <Avatar
+              src={`http://127.0.0.1:8000/storage/${user?.img}`}
+              sx={{
+                width: 40,
+                height: 40,
+              }}
+            />
+            <Typography
+              variant="h6"
+              sx={{ fontWeight: "500", color: "white", paddingLeft: "1rem" }}
+            >
+              {user?.role === "teacher" ? "Mr. " : ""}
+              {user?.first_name.toUpperCase()} {user?.last_name.toUpperCase()}
+            </Typography>
+          </Box>
 
           <Divider sx={{ backgroundColor: "white" }} />
 

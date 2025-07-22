@@ -30,7 +30,6 @@ axiosInstance.interceptors.response.use(
     ) {
       localStorage.removeItem("access_token");
       sessionStorage.clear();
-
       window.location.href = "/";
     }
 
