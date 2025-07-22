@@ -71,7 +71,7 @@ class AuthController extends Controller
                     'last_name' => $user->last_name,
                     'email' => $user->email,
                     'role' => $user->role,
-                    'img' => $user->img,
+                    'img' => $user->img ? asset("storage/{$user->img}") : null,
                 ],
                 'access_token' => $accessToken,
 
