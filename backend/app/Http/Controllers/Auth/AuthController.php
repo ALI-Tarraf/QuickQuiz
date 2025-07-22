@@ -28,9 +28,13 @@ class AuthController extends Controller
             'email' => 'required|email|unique:users',
             'password' => ['required', Password::min(8)->mixedCase()->letters()->numbers()->symbols()],
             'role' => 'required|in:student,teacher',
+            'img' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'specialization' => 'required_if:role,teacher|string|max:255',
         ]);
-
+        $imgPath = null;
+        if ($request->hasFile('img')) {
+           $imgPath = $request->file('img')->store('images', 'public'); // تحفظ الصورة في storage/app/public/images
+        }
         if ($validator->fails()) {
             return response()->json($validator->errors(), 422);
         }
@@ -44,6 +48,7 @@ class AuthController extends Controller
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
                 'role' => $request->role,
+                'img' => $imgPath??null,
             ]);
 
             if ($user->role === 'student') {
