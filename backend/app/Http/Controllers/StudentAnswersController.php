@@ -27,6 +27,11 @@ public function create(Request $request, $examId)
             return response()->json(['message' => 'Student not found'], 404);
         }
 
+            // 🧹 Delete previous answers for this exam
+        $questionIds = Question::where('exam_id', $examId)->pluck('id');
+        StudentAnswer::where('user_id', $student->id)
+            ->whereIn('question_id', $questionIds)
+            ->delete();
         foreach ($data as $item) {
             $questionId = $item['questionId'] ?? null;
             $answerId = $item['answerId'] ?? null;

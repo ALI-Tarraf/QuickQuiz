@@ -111,26 +111,31 @@ public function show($id)
     $endDateTime = $startDateTime->copy()->addMinutes($exam->duration_minutes);
 
     // التحقق مما إذا كان المستخدم طالب (وليس أستاذًا)
-    // if ($user->role === 'student') {
+    if ($user->role === 'student') {
+    $now = Carbon::now();
 
-    //     // إذا الوقت الحالي بعد انتهاء الامتحان
-    //     $graceEndTime = $endDateTime->copy()->addMinutes(5);
-    //if (Carbon::now()->gt($graceEndTime)) {
+    // Exam start and end time
+    $startDateTime = Carbon::parse($exam->date . ' ' . $exam->time);
+    $endDateTime = $startDateTime->copy()->addMinutes($exam->duration);
 
-    //         return response()->json(['message' => 'You cannot access the exam. The exam time has ended.'], 403);
-    //     }
+    // Before exam start
+    if ($now->lt($startDateTime)) {
+        return response()->json(['message' => 'You cannot access the exam before it starts.'], 403);
+    }
 
-    //        // إذا الوقت الحالي قبل بدء الامتحان
-    // if (Carbon::now()->lt($startDateTime)) {
-    //     return response()->json(['message' => 'You cannot access the exam before its start time.'], 403);
-    // }
+    // More than 5 minutes late
+    $startGraceLimit = $startDateTime->copy()->addMinutes(5);
+    if ($now->gt($startGraceLimit)) {
+        return response()->json(['message' => 'You are more than 5 minutes late. You cannot access the exam now.'], 403);
+    }
 
-    //     // أو إذا الطالب قدم الامتحان (له نتيجة)
-    //     $hasResult = $exam->results()->where('user_id', $user->id)->exists();
-    //     if ($hasResult) {
-    //         return response()->json(['message' => 'You have already submitted this exam.'], 403);
-    //     }
-    // }
+    // Already submitted
+    $hasResult = $exam->results()->where('user_id', $user->id)->exists();
+    if ($hasResult) {
+        return response()->json(['message' => 'You have already submitted this exam.'], 403);
+    }
+}
+
 
     // تجهيز البيانات للإرجاع
     $data = [
