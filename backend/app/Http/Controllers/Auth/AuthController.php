@@ -31,14 +31,14 @@ class AuthController extends Controller
             'img' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'specialization' => 'required_if:role,teacher|string|max:255',
         ]);
-        $imgPath = null;
-        if ($request->hasFile('img')) {
-           $imgPath = $request->file('img')->store('images', 'public'); // تحفظ الصورة في storage/app/public/images
-        }
         if ($validator->fails()) {
             return response()->json($validator->errors(), 422);
         }
 
+        $imgPath = null;
+        if ($request->hasFile('img')) {
+           $imgPath = $request->file('img')->store('images', 'public'); // تحفظ الصورة في storage/app/public/images
+        }
         DB::beginTransaction();
 
         try {
