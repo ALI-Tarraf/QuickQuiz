@@ -12,5 +12,13 @@ class UserController extends Controller
     {
         return response()->json(Auth::user());
     }
+    // public function getUser(Request $request)
+    // {
+    //     return response()->json(Auth::user());
+    // }
+    // public function getUser(Request $request)
+    // {
+    //     return response()->json(Auth::user());
+    // }
 
 }

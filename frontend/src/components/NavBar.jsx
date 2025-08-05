@@ -32,7 +32,7 @@ const NavBar = () => {
   const { user } = useSelector((state) => state.auth);
   console.log(user);
   {
-    console.log(`http://127.0.0.1:8000/${user?.img}`);
+    console.log(`http://127.0.0.1:8000/storage/${user?.img}`);
   }
 
   const dispatch = useDispatch();
