@@ -53,7 +53,7 @@ const TestPage = () => {
 
   const [open, setOpen] = useState(false);
   const [answers, setAnswers] = useState({});
-
+  console.log(shuffled);
   const result = shuffled.map((item, index) => ({
     questionId: +item.id,
     answerId: +answers[index] || null,
@@ -79,6 +79,12 @@ const TestPage = () => {
       shuffleArray(questionsData?.questions && questionsData?.questions)
     );
   }, [dispatch, id]);
+  useEffect(() => {
+    if (questionsData?.questions?.length > 0) {
+      const shuffledData = shuffleArray(questionsData?.questions);
+      setShuffled(shuffleArray(shuffledData));
+    }
+  }, [questionsData]);
 
   if (isLoading) return <Loader />;
   if (error) return <Errorpage />;

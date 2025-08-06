@@ -1,7 +1,8 @@
 import {
+  Avatar,
   Box,
   Button,
-  // CircularProgress,
+  CircularProgress,
   Modal,
   Paper,
   Stack,
@@ -20,279 +21,15 @@ import {
 import { useEffect, useState } from "react";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useDispatch, useSelector } from "react-redux";
-import { getUsers } from "../store/slices/users/usersSlice";
-const users = [
-  {
-    id: 4382,
-    username: "Nora",
-    lastname: "Johnson",
-    role: "student",
-    img: "https://via.placeholder.com/150",
-    email: "www.google.com",
-    specialization: null,
-  },
-  {
-    id: 1957,
-    username: "Zane",
-    lastname: "Williams",
-    role: "teacher",
-    img: "https://via.placeholder.com/150",
-    email: "www.google.com",
-    specialization: "Math",
-  },
-  {
-    id: 6254,
-    username: "Ali",
-    lastname: "Ahmed",
-    role: "teacher",
-    email: "www.google.com",
-    img: "https://via.placeholder.com/150",
-    specialization: "English",
-  },
-  {
-    id: 8916,
-    username: "Lina",
-    lastname: "Smith",
-    role: "student",
-    img: "https://via.placeholder.com/150",
-    specialization: null,
-    email: "www.google.com",
-  },
-  {
-    id: 3098,
-    username: "Emma",
-    lastname: "Brown",
-    role: "teacher",
-    email: "www.google.com",
-    img: "https://via.placeholder.com/150",
-    specialization: "Computer Science",
-  },
-  {
-    id: 7635,
-    username: "Fatima",
-    lastname: "Garcia",
-    role: "student",
-    img: "https://via.placeholder.com/150",
-    specialization: null,
-    email: "www.google.com",
-  },
-  {
-    id: 4701,
-    username: "Omar",
-    lastname: "Lee",
-    email: "www.google.com",
-    role: "teacher",
-    img: "https://via.placeholder.com/150",
-    specialization: "Biology",
-  },
-  {
-    id: 1823,
-    username: "Leo",
-    lastname: "Chen",
-    role: "student",
-    email: "www.google.com",
-    img: "https://via.placeholder.com/150",
-    specialization: null,
-  },
-  {
-    id: 5536,
-    username: "Sara",
-    lastname: "Williams",
-    role: "teacher",
-    email: "www.google.com",
-    img: "https://via.placeholder.com/150",
-    specialization: "Economics",
-  },
-  {
-    id: 3045,
-    username: "John",
-    lastname: "Ahmed",
-    role: "student",
-    img: "https://via.placeholder.com/150",
-    email: "www.google.com",
-    specialization: null,
-  },
-  {
-    id: 7782,
-    username: "Ali",
-    lastname: "Smith",
-    role: "teacher",
-    img: "https://via.placeholder.com/150",
-    specialization: "History",
-    email: "www.google.com",
-  },
-  {
-    id: 9971,
-    username: "Nora",
-    lastname: "Khan",
-    email: "www.google.com",
-    role: "student",
-    img: "https://via.placeholder.com/150",
-    specialization: null,
-  },
-  {
-    id: 4312,
-    username: "Leo",
-    lastname: "Brown",
-    email: "www.google.com",
-    role: "teacher",
-    img: "https://via.placeholder.com/150",
-    specialization: "Physics",
-  },
-  {
-    id: 3194,
-    username: "Fatima",
-    lastname: "Garcia",
-    role: "teacher",
-    img: "https://via.placeholder.com/150",
-    specialization: "Art",
-    email: "www.google.com",
-  },
-  {
-    id: 6451,
-    username: "Emma",
-    lastname: "Lee",
-    role: "student",
-    img: "https://via.placeholder.com/150",
-    specialization: null,
-    email: "www.google.com",
-  },
-  {
-    id: 2157,
-    username: "Zane",
-    lastname: "Chen",
-    email: "www.google.com",
-    role: "teacher",
-    img: "https://via.placeholder.com/150",
-    specialization: "Chemistry",
-  },
-  {
-    id: 9893,
-    username: "Omar",
-    lastname: "Johnson",
-    role: "student",
-    email: "www.google.com",
-    img: "https://via.placeholder.com/150",
-    specialization: null,
-  },
-  {
-    id: 7519,
-    username: "Lina",
-    lastname: "Smith",
-    role: "teacher",
-    img: "https://via.placeholder.com/150",
-    email: "www.google.com",
-    specialization: "Computer Science",
-  },
-  {
-    id: 5803,
-    username: "Sara",
-    lastname: "Ahmed",
-    role: "teacher",
-    img: "https://via.placeholder.com/150",
-    specialization: "Math",
-    email: "www.google.com",
-  },
-  {
-    id: 8467,
-    username: "John",
-    lastname: "Brown",
-    role: "student",
-    img: "https://via.placeholder.com/150",
-    email: "www.google.com",
-    specialization: null,
-  },
-  {
-    id: 6084,
-    username: "Fatima",
-    lastname: "Hassan",
-    role: "teacher",
-    img: "https://via.placeholder.com/150",
-    specialization: "History",
-    email: "www.google.com",
-  },
-  {
-    id: 9261,
-    username: "Ali",
-    lastname: "Williams",
-    role: "student",
-    img: "https://via.placeholder.com/150",
-    specialization: null,
-    email: "www.google.com",
-  },
-  {
-    id: 3246,
-    username: "Leo",
-    lastname: "Khan",
-    role: "teacher",
-    img: "https://via.placeholder.com/150",
-    specialization: "Geography",
-    email: "www.google.com",
-  },
-  {
-    id: 1124,
-    username: "Emma",
-    lastname: "Lee",
-    role: "teacher",
-    img: "https://via.placeholder.com/150",
-    specialization: "English",
-    email: "www.google.com",
-  },
-  {
-    id: 7914,
-    username: "Nora",
-    lastname: "Johnson",
-    role: "student",
-    img: "https://via.placeholder.com/150",
-    specialization: null,
-    email: "www.google.com",
-  },
-  {
-    id: 6681,
-    username: "Omar",
-    email: "www.google.com",
-    lastname: "Ahmed",
-    role: "teacher",
-    img: "https://via.placeholder.com/150",
-    specialization: "Biology",
-  },
-  {
-    id: 2450,
-    username: "Zane",
-    lastname: "Garcia",
-    role: "student",
-    img: "https://via.placeholder.com/150",
-    specialization: null,
-    email: "www.google.com",
-  },
-  {
-    id: 3307,
-    username: "Lina",
-    lastname: "Chen",
-    role: "teacher",
-    img: "https://via.placeholder.com/150",
-    specialization: "Physics",
-    email: "www.google.com",
-  },
-  {
-    id: 9945,
-    username: "John",
-    lastname: "Khan",
-    role: "student",
-    img: "https://via.placeholder.com/150",
-    email: "www.google.com",
-    specialization: null,
-  },
-  {
-    id: 5218,
-    username: "Sara",
-    lastname: "Smith",
-    role: "teacher",
-    img: "https://via.placeholder.com/150",
-    specialization: "Art",
-    email: "www.google.com",
-  },
-];
+import {
+  deleteUser,
+  getUsers,
+  usersOperationCompleted,
+} from "../store/slices/users/usersSlice";
+import { formatDate } from "../utils/formateDate";
+import Loader from "../components/Loader";
+import Errorpage from "../components/ErrorPage";
+import OperationAlert from "../components/OperationAlert";
 const style = {
   position: "absolute",
   top: "50%",
@@ -310,8 +47,17 @@ function AdminDashboard() {
   const [filter, setFilter] = useState("all");
   const [open, setOpen] = useState(false);
   const [filteredUsers, setFilteredUsers] = useState([]);
+  const [userId, setUserId] = useState(null);
   const dispatch = useDispatch();
-
+  const {
+    isLoading,
+    error,
+    users,
+    operationLoading,
+    operationError,
+    status,
+    message,
+  } = useSelector((state) => state.users);
   const theme = useTheme();
 
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -332,8 +78,15 @@ function AdminDashboard() {
   useEffect(() => {
     dispatch(getUsers());
   }, []);
+  if (error) return <Errorpage />;
   return (
     <>
+      <OperationAlert
+        status={status}
+        error={operationError}
+        message={message}
+        completedAction={usersOperationCompleted}
+      />
       <Box sx={{ paddingX: { xs: "16px", sm: "24px" } }}>
         <Typography
           sx={{
@@ -357,140 +110,183 @@ function AdminDashboard() {
           <ToggleButton value="teachers">Teachers</ToggleButton>
           <ToggleButton value="students">Students</ToggleButton>
         </ToggleButtonGroup>
-        <TableContainer component={Paper}>
-          <Table size={isMobile ? "small" : "medium"}>
-            <TableHead>
-              <TableRow
-                sx={{
-                  backgroundColor: "rgba(0, 0, 0, 0.2)",
-                }}
-              >
-                <TableCell
-                  sx={{
-                    fontSize: { xs: "17px", md: "25px" },
-                    fontWeight: "bold",
-                  }}
-                >
-                  Name
-                </TableCell>
-
-                <TableCell
-                  sx={{
-                    fontSize: { xs: "17px", md: "25px" },
-                    fontWeight: "bold",
-                  }}
-                >
-                  ID
-                </TableCell>
-                <TableCell
-                  sx={{
-                    fontSize: { xs: "17px", md: "25px" },
-                    fontWeight: "bold",
-                  }}
-                >
-                  Role
-                </TableCell>
-                <TableCell
-                  sx={{
-                    fontSize: { xs: "17px", md: "25px" },
-                    fontWeight: "bold",
-                  }}
-                >
-                  Email
-                </TableCell>
-                <TableCell
-                  sx={{
-                    fontSize: { xs: "17px", md: "25px" },
-                    fontWeight: "bold",
-                  }}
-                >
-                  Spec
-                </TableCell>
-                <TableCell
-                  sx={{
-                    fontSize: { xs: "17px", md: "25px" },
-                    fontWeight: "bold",
-                  }}
-                >
-                  Delete
-                </TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {filteredUsers?.map((user, index) => (
+        {isLoading ? (
+          <Loader />
+        ) : (
+          <TableContainer component={Paper}>
+            <Table size={isMobile ? "small" : "medium"}>
+              <TableHead>
                 <TableRow
                   sx={{
-                    backgroundColor:
-                      index % 2 == 0 ? "white" : "rgba(0, 0, 0, 0.1)",
+                    backgroundColor: "rgba(0, 0, 0, 0.2)",
                   }}
-                  key={user.id}
                 >
                   <TableCell
                     sx={{
-                      fontSize: { xs: "15px", md: "17px" },
-                      fontWeight: { xs: 400, md: 500 },
+                      fontSize: { xs: "17px", md: "25px" },
+                      fontWeight: "bold",
                     }}
                   >
-                    {user.username + " " + user.lastname}
+                    User
+                  </TableCell>
+
+                  <TableCell
+                    sx={{
+                      fontSize: { xs: "17px", md: "25px" },
+                      fontWeight: "bold",
+                    }}
+                  >
+                    ID
                   </TableCell>
                   <TableCell
                     sx={{
-                      fontSize: { xs: "15px", md: "17px" },
-                      fontWeight: { xs: 400, md: 500 },
+                      fontSize: { xs: "17px", md: "25px" },
+                      fontWeight: "bold",
                     }}
                   >
-                    {user.id}
+                    Role
                   </TableCell>
                   <TableCell
                     sx={{
-                      fontSize: { xs: "15px", md: "17px" },
-                      fontWeight: { xs: 400, md: 500 },
+                      fontSize: { xs: "17px", md: "25px" },
+                      fontWeight: "bold",
                     }}
                   >
-                    {user.role}
+                    Email
                   </TableCell>
                   <TableCell
                     sx={{
-                      fontSize: { xs: "15px", md: "17px" },
-                      fontWeight: { xs: 400, md: 500 },
+                      fontSize: { xs: "17px", md: "25px" },
+                      fontWeight: "bold",
                     }}
                   >
-                    {user.email}
+                    Spec
                   </TableCell>
                   <TableCell
                     sx={{
-                      fontSize: { xs: "15px", md: "17px" },
-                      fontWeight: { xs: 400, md: 500 },
+                      fontSize: { xs: "17px", md: "25px" },
+                      fontWeight: "bold",
                     }}
                   >
-                    {user.specialization}
+                    Created At
                   </TableCell>
                   <TableCell
                     sx={{
-                      fontSize: { xs: "15px", md: "17px" },
-                      fontWeight: { xs: 400, md: 500 },
+                      fontSize: { xs: "17px", md: "25px" },
+                      fontWeight: "bold",
                     }}
                   >
-                    <Button
-                      variant="contained"
-                      color="error"
-                      sx={{
-                        borderRadius: 2,
-                      }}
-                      onClick={() => {
-                        setOpen(true);
-                      }}
-                    >
-                      <DeleteIcon />
-                    </Button>
+                    Delete
                   </TableCell>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+              </TableHead>
+              <TableBody>
+                {filteredUsers?.map((user, index) => (
+                  <TableRow
+                    sx={{
+                      backgroundColor:
+                        index % 2 == 0 ? "white" : "rgba(0, 0, 0, 0.1)",
+                    }}
+                    key={user.id}
+                  >
+                    <TableCell
+                      sx={{
+                        fontSize: { xs: "15px", md: "17px" },
+                        fontWeight: { xs: 400, md: 500 },
+                      }}
+                    >
+                      <Stack direction={"row"} gap={2} alignItems={"center"}>
+                        <Avatar
+                          src={`http://127.0.0.1:8000/storage/${user?.img}`}
+                          sx={{
+                            width: 40,
+                            height: 40,
+                          }}
+                        />
+                        {user.first_name + " " + user.last_name}
+                      </Stack>
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        fontSize: { xs: "15px", md: "17px" },
+                        fontWeight: { xs: 400, md: 500 },
+                      }}
+                    >
+                      {user.id}
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        fontSize: { xs: "15px", md: "17px" },
+                        fontWeight: { xs: 400, md: 500 },
+                      }}
+                    >
+                      {user.role}
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        fontSize: { xs: "15px", md: "17px" },
+                        fontWeight: { xs: 400, md: 500 },
+                      }}
+                    >
+                      {user.email}
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        fontSize: { xs: "15px", md: "17px" },
+                        fontWeight: { xs: 400, md: 500 },
+                      }}
+                    >
+                      {user.specialization}
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        fontSize: { xs: "15px", md: "17px" },
+                        fontWeight: { xs: 400, md: 500 },
+                      }}
+                    >
+                      {formatDate(user.created_at)}
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        fontSize: { xs: "15px", md: "17px" },
+                        fontWeight: { xs: 400, md: 500 },
+                      }}
+                    >
+                      <Button
+                        variant="contained"
+                        color="error"
+                        sx={{
+                          borderRadius: 2,
+                        }}
+                        onClick={() => {
+                          setOpen(true);
+                          setUserId(user.id);
+                        }}
+                        disabled={
+                          operationLoading && user?.id === userId ? true : false
+                        }
+                      >
+                        {operationLoading && user?.id === userId ? (
+                          <CircularProgress size={20} color="inherit" />
+                        ) : (
+                          <DeleteIcon />
+                        )}
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        )}
       </Box>
-      <Modal open={open} onClose={() => setOpen(false)}>
+      <Modal
+        open={open}
+        onClose={() => {
+          setOpen(false);
+          setUserId(null);
+        }}
+      >
         <Box sx={style}>
           <Stack direction={"row"} alignItems={"center"} gap={1} pb={1}>
             <Typography
@@ -518,16 +314,17 @@ function AdminDashboard() {
                   borderRadius: { xs: "5px", md: "8px" },
                 }}
                 startIcon={
-                  // submitIsLoading ? (
-                  //   <CircularProgress size={20} color="inherit" />
-                  // ) : (
-                  <DeleteIcon />
-                  // )
+                  operationLoading ? (
+                    <CircularProgress size={20} color="inherit" />
+                  ) : (
+                    <DeleteIcon />
+                  )
                 }
-                disabled={
-                  // submitIsLoading ? true :
-                  false
-                }
+                disabled={operationLoading ? true : false}
+                onClick={() => {
+                  dispatch(deleteUser(userId));
+                  setOpen(false);
+                }}
               >
                 Delete
               </Button>
@@ -540,7 +337,10 @@ function AdminDashboard() {
                   p: "8px",
                   borderRadius: { xs: "5px", md: "8px" },
                 }}
-                onClick={() => setOpen(false)}
+                onClick={() => {
+                  setOpen(false);
+                  setUserId(null);
+                }}
               >
                 CANCEL
               </Button>

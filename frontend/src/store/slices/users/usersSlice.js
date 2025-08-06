@@ -19,13 +19,13 @@ export const getUsers = createAsyncThunk(
   }
 );
 
-// delete test
-export const deleteTest = createAsyncThunk(
-  "tests/deleteTest",
+// delete user
+export const deleteUser = createAsyncThunk(
+  "users/deleteUser",
   async (id, thunkAPI) => {
     const { rejectWithValue } = thunkAPI;
     try {
-      const res = await axios.delete(`/tests/${id}`);
+      const res = await axios.delete(`/user/${id}`);
       if (res.status === 200) {
         return {
           id: id,
@@ -37,19 +37,20 @@ export const deleteTest = createAsyncThunk(
   }
 );
 const usersSlice = createSlice({
-  name: "tests",
+  name: "users",
 
   initialState: {
     isLoading: false,
     error: null,
     users: [],
+    status: false,
     operationLoading: false,
     operationError: null,
     message: "",
   },
 
   reducers: {
-    testsOperationCompleted: (state) => {
+    usersOperationCompleted: (state) => {
       state.status = false;
       state.error = null;
       state.message = "";
@@ -68,30 +69,30 @@ const usersSlice = createSlice({
       .addCase(getUsers.fulfilled, (state, action) => {
         state.error = null;
         state.isLoading = false;
-        state.tests = action.payload.data;
-        console.log(action.payload.data);
+        state.users = action.payload.data.users;
+        console.log(action.payload.data.users);
       })
       .addCase(getUsers.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
       });
 
-    // delete test
+    // delete user
     builder
-      .addCase(deleteTest.pending, (state) => {
+      .addCase(deleteUser.pending, (state) => {
         state.operationError = null;
         state.operationLoading = true;
       })
-      .addCase(deleteTest.fulfilled, (state, action) => {
+      .addCase(deleteUser.fulfilled, (state, action) => {
         state.operationError = null;
         state.operationLoading = false;
         state.status = true;
-        state.upcomingTests = state.upcomingTests.filter(
-          (test) => test.id !== action.payload.id
+        state.users = state.users.filter(
+          (user) => user.id !== action.payload.id
         );
-        state.message = "Test deleted successfully";
+        state.message = "User deleted successfully";
       })
-      .addCase(deleteTest.rejected, (state, action) => {
+      .addCase(deleteUser.rejected, (state, action) => {
         state.operationLoading = false;
         state.operationError = action.payload;
         state.status = true;

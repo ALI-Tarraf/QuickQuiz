@@ -56,13 +56,6 @@ const NavBar = () => {
       private: true,
       admin: false,
     },
-    {
-      name: "Admin Dashboard ",
-      path: "/admindashboard",
-      icon: <DashboardRoundedIcon />,
-      private: true,
-      admin: true,
-    },
   ];
   const handleClick = async () => {
     await dispatch(logout());
@@ -117,8 +110,7 @@ const NavBar = () => {
               if (
                 !user ||
                 (user?.role === "student" && link.private) ||
-                (user?.role != "admin" && link.admin) ||
-                (user?.role == "admin" && !link.admin)
+                user?.role == "admin"
               )
                 return;
               return (
@@ -276,8 +268,7 @@ const NavBar = () => {
             if (
               !user ||
               (user?.role === "student" && link.private) ||
-              (user?.role != "admin" && link.admin) ||
-              (user?.role == "admin" && !link.admin)
+              user?.role == "admin"
             )
               return;
             return (

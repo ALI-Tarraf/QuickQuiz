@@ -1,9 +1,11 @@
 import { Box, Typography, Button } from "@mui/material";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 const Unauthorized = () => {
   const navigate = useNavigate();
+  const { user } = useSelector((state) => state.auth);
 
   return (
     <Box
@@ -13,7 +15,6 @@ const Unauthorized = () => {
         flexDirection: "column",
         justifyContent: "center",
         alignItems: "center",
-
         textAlign: "center",
         padding: 3,
       }}
@@ -28,7 +29,11 @@ const Unauthorized = () => {
       <Button
         variant="contained"
         color="primary"
-        onClick={() => navigate("/testspage")}
+        onClick={() =>
+          user?.role === "admin"
+            ? navigate("/admindashboard")
+            : navigate("/testspage")
+        }
         sx={{ borderRadius: 2, paddingX: 4 }}
       >
         Go Home

@@ -12,7 +12,6 @@ const TestsPage = () => {
   const dispatch = useDispatch();
   useEffect(() => {
     dispatch(getTests());
-    console.log(tests);
   }, [dispatch]);
 
   if (isLoading) return <Loader />;
