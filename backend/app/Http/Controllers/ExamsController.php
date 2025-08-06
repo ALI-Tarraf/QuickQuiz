@@ -93,7 +93,6 @@ public function index()
 
 
 
-
 public function show($id)
 {
     $exam = Exam::with('questions.questionAnswers')->find($id);
@@ -104,38 +103,33 @@ public function show($id)
 
     $user = Auth::user();
 
-    // دمج التاريخ والوقت لوقت بداية الامتحان
+    // حساب وقت بداية الامتحان
     $startDateTime = Carbon::parse($exam->date . ' ' . $exam->time);
 
     // حساب وقت نهاية الامتحان
     $endDateTime = $startDateTime->copy()->addMinutes($exam->duration_minutes);
 
-    // التحقق مما إذا كان المستخدم طالب (وليس أستاذًا)
+    // تحقق فقط لو المستخدم طالب
     if ($user->role === 'student') {
-    $now = Carbon::now();
+        $now = Carbon::now();
 
-    // Exam start and end time
-    $startDateTime = Carbon::parse($exam->date . ' ' . $exam->time);
-    $endDateTime = $startDateTime->copy()->addMinutes($exam->duration);
+        // قبل بداية الامتحان
+        if ($now->lt($startDateTime)) {
+            return response()->json(['message' => 'You cannot access the exam before it starts.'], 403);
+        }
 
-    // Before exam start
-    if ($now->lt($startDateTime)) {
-        return response()->json(['message' => 'You cannot access the exam before it starts.'], 403);
+        // تأخر أكتر من 5 دقائق عن وقت البداية
+        $gracePeriodEnd = $startDateTime->copy()->addMinutes(5);
+        if ($now->gt($gracePeriodEnd)) {
+            return response()->json(['message' => 'You are more than 5 minutes late. You cannot access the exam now.'], 403);
+        }
+
+        // التحقق إذا الطالب حل الامتحان مسبقاً
+        $hasResult = $exam->results()->where('user_id', $user->id)->exists();
+        if ($hasResult) {
+            return response()->json(['message' => 'You have already submitted this exam.'], 403);
+        }
     }
-
-    // More than 5 minutes late
-    $startGraceLimit = $startDateTime->copy()->addMinutes(5);
-    if ($now->gt($startGraceLimit)) {
-        return response()->json(['message' => 'You are more than 5 minutes late. You cannot access the exam now.'], 403);
-    }
-
-    // Already submitted
-    $hasResult = $exam->results()->where('user_id', $user->id)->exists();
-    if ($hasResult) {
-        return response()->json(['message' => 'You have already submitted this exam.'], 403);
-    }
-}
-
 
     // تجهيز البيانات للإرجاع
     $data = [
@@ -160,6 +154,7 @@ public function show($id)
 
     return response()->json(['exam' => $data]);
 }
+
 
 
 
