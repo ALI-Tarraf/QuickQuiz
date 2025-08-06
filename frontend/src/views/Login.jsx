@@ -41,7 +41,11 @@ const Login = () => {
     dispatch(login({ email: values.email, password: values.password }));
   };
   useEffect(() => {
-    if (user) navigate("/testspage");
+    if (user) {
+      user?.role !== "admin"
+        ? navigate("/testspage")
+        : navigate("/admindashboard");
+    }
   }, [user]);
   return (
     <>

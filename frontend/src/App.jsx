@@ -19,13 +19,12 @@ import OperationAlert from "./components/OperationAlert";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import TestsDashboard from "./views/TestsDashboard";
 import UpdateTest from "./views/UpdateTest";
+import AdminDashboard from "./views/AdminDashboard";
 
 function App() {
   const dispatch = useDispatch();
   const { user, error, status, message } = useSelector((state) => state.auth);
 
-  // const cookie = new Cookies();
-  // const token = cookie.get("access_token");
   const token = localStorage.getItem("access_token");
   useEffect(() => {
     if (!user && token) {
@@ -45,8 +44,31 @@ function App() {
         {/* with navbar */}
         <Route element={<ProtectedRoute />}>
           <Route element={<MainLayout />}>
-            <Route path="/testspage" element={<TestsPage />} />
-            <Route path="/testresults" element={<TestResults />} />
+            <Route
+              path="/testspage"
+              element={
+                <RoleProtectedRoute roles={["teacher", "student"]}>
+                  <TestsPage />
+                </RoleProtectedRoute>
+              }
+            />
+            <Route
+              path="/testresults"
+              element={
+                <RoleProtectedRoute roles={["teacher", "student"]}>
+                  <TestResults />
+                </RoleProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/admindashboard"
+              element={
+                <RoleProtectedRoute roles={["admin"]}>
+                  <AdminDashboard />
+                </RoleProtectedRoute>
+              }
+            />
             <Route
               path="/testresults/:id"
               element={
@@ -82,7 +104,15 @@ function App() {
             <Route path="/unauthorized" element={<Unauthorized />} />
           </Route>
           {/* With out navbar */}
-          <Route path="/testpage/:id" element={<TestPage />} />
+
+          <Route
+            path="/testpage/:id"
+            element={
+              <RoleProtectedRoute roles={["teacher", "student"]}>
+                <TestPage />
+              </RoleProtectedRoute>
+            }
+          />
         </Route>
         <Route path="/" element={<Login />} />
         <Route path="/signup" element={<Signup />} />

@@ -99,7 +99,6 @@ const Signup = () => {
     if (values.is_teacher) {
       formData.append("specialization", values.spec);
     }
-    console.log(formData);
     dispatch(register(formData));
   };
 

@@ -30,10 +30,6 @@ import logo from "../assets/logo.png";
 const NavBar = () => {
   const [drawerIsVisible, setDrawerIsVisible] = useState(false);
   const { user } = useSelector((state) => state.auth);
-  console.log(user);
-  {
-    console.log(`http://127.0.0.1:8000/${user?.img}`);
-  }
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -43,12 +39,14 @@ const NavBar = () => {
       path: "/testspage",
       icon: <QuizIcon />,
       private: false,
+      admin: false,
     },
     {
       name: "Test Results",
       path: "/testresults",
       icon: <RuleIcon />,
       private: false,
+      admin: false,
     },
 
     {
@@ -56,6 +54,14 @@ const NavBar = () => {
       path: "/testsdashboard",
       icon: <DashboardRoundedIcon />,
       private: true,
+      admin: false,
+    },
+    {
+      name: "Admin Dashboard ",
+      path: "/admindashboard",
+      icon: <DashboardRoundedIcon />,
+      private: true,
+      admin: true,
     },
   ];
   const handleClick = async () => {
@@ -108,7 +114,13 @@ const NavBar = () => {
             sx={{ display: { xs: "none", md: "flex" } }}
           >
             {links.map((link) => {
-              if (!user || (user?.role === "student" && link.private)) return;
+              if (
+                !user ||
+                (user?.role === "student" && link.private) ||
+                (user?.role != "admin" && link.admin) ||
+                (user?.role == "admin" && !link.admin)
+              )
+                return;
               return (
                 <NavLink
                   to={link.path}
@@ -140,7 +152,9 @@ const NavBar = () => {
             })}
           </Stack>
           <Stack direction="row" spacing={1} alignItems="center">
+            {/* {user?.img && ( */}
             <Avatar
+              key={user?.img}
               src={`http://127.0.0.1:8000/storage/${user?.img}`}
               sx={{
                 width: 50,
@@ -151,6 +165,8 @@ const NavBar = () => {
                 },
               }}
             />
+            {/* )} */}
+
             <Typography
               sx={{
                 display: {
@@ -257,6 +273,13 @@ const NavBar = () => {
           <Divider sx={{ backgroundColor: "white" }} />
 
           {links.map((link) => {
+            if (
+              !user ||
+              (user?.role === "student" && link.private) ||
+              (user?.role != "admin" && link.admin) ||
+              (user?.role == "admin" && !link.admin)
+            )
+              return;
             return (
               <ListItem key={link.name}>
                 <NavLink
