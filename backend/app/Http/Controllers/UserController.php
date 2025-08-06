@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 class UserController extends Controller
 {
     public function getUser(Request $request)
@@ -34,7 +35,6 @@ class UserController extends Controller
         'users' => $users
     ]);
 }
-
 public function deleteUser($id)
 {
     $user = User::find($id);
@@ -50,11 +50,17 @@ public function deleteUser($id)
         // حذف سجل الأستاذ نفسه
         $user->teacher->delete();
     } elseif ($user->role === 'student' && $user->student) {
+        // حذف إجابات الطالب
+        DB::table('student_answers')->where('user_id', $user->id)->delete();
+
+        // حذف النتائج (لو موجودة)
+        DB::table('exam_results')->where('user_id', $user->id)->delete();
+
         // حذف سجل الطالب
         $user->student->delete();
     }
 
-    // أخيرًا حذف المستخدم
+    // حذف المستخدم
     $user->delete();
 
     return response()->json(['message' => 'User and related data deleted successfully']);
