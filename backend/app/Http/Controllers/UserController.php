@@ -12,14 +12,29 @@ class UserController extends Controller
         return response()->json(Auth::user());
     }
 
-   public function getUsers(Request $request)
-   {
-    $users = User::where('id', '!=', Auth::id())->get();
+ public function getUsers(Request $request)
+{
+    $users = User::where('id', '!=', Auth::id())
+        ->with('teacher') // يجلب بيانات المدرس المرتبطة بالمستخدم
+        ->get()
+        ->map(function ($user) {
+            return [
+                'id' => $user->id,
+                'first_name' => $user->first_name,
+                'last_name' => $user->last_name,
+                'email'=>$user->email,
+                'img'=>$user->img,
+                'role' => $user->role,
+                'created_at' => $user->created_at,
+                'specialization' => $user->role === 'teacher' ? $user->teacher?->specialization : " ", // الاختصاص من جدول teachers
+            ];
+        });
 
     return response()->json([
         'users' => $users
     ]);
-    }
+}
+
 public function deleteUser($id)
 {
     $user = User::find($id);
