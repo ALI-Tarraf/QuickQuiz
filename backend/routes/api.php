@@ -24,6 +24,13 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 
 
+// Routes for admin
+Route::middleware(['auth:api', 'role:admin'])->group(function () {
+    Route::get('/users', [UserController::class, 'getUsers']);
+      Route::delete('user/{id}', [UserController::class, 'deleteUser']);
+
+
+});
 // Routes for students
 Route::middleware(['auth:api', 'role:student'])->group(function () {
     Route::get('/student/dashboard', [StudentController::class, 'dashboard']);
