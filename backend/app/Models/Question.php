@@ -13,7 +13,7 @@ class Question extends Model
     protected $fillable = [
         'exam_id',
         'question_text',
-        'type',
+
         'mark',
     ];
 

@@ -10,7 +10,7 @@ class QuestionAnswers extends Model
     protected $fillable = [
         'question_id',
         'answer_text',
-        'option_text',
+
         'is_correct',
 
     ];

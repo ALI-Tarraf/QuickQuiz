@@ -48,13 +48,21 @@ public function create(Request $request, $examId)
                 ->where('question_id', $questionId)
                 ->first();
 
-            $isCorrect = 0;
-            $textAnswer = null;
+           $textAnswer = $item['textAnswer'] ?? null;
+           $isCorrect = 0;
 
             if ($option) {
                 $isCorrect = $option->is_correct;
                 $textAnswer = $option->answer_text;
-            }
+            }else {
+            // في حالة السؤال النصي
+            $correctAnswer = QuestionAnswers::where('question_id', $questionId)
+                                    ->where('is_correct', 1)
+                                    ->value('answer_text');
+
+            if (trim(strtolower($textAnswer)) === trim(strtolower($correctAnswer))) {
+                $isCorrect = 1;
+            }}
 
             $savedAnswers[] = StudentAnswer::create([
                 'user_id' => $student->id,
@@ -69,7 +77,7 @@ public function create(Request $request, $examId)
 
         return response()->json([
             'message' => 'Answers saved successfully',
-            'saved' => count($savedAnswers),
+            'saved' => $savedAnswers,
         ]);
 
     } catch (\Exception $e) {
