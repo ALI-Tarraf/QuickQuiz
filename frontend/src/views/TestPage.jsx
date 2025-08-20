@@ -10,6 +10,7 @@ import {
   Box,
   Modal,
   CircularProgress,
+  TextField,
 } from "@mui/material";
 import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace";
 import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined";
@@ -54,10 +55,23 @@ const TestPage = () => {
   const [open, setOpen] = useState(false);
   const [answers, setAnswers] = useState({});
   console.log(shuffled);
-  const result = shuffled.map((item, index) => ({
-    questionId: +item.id,
-    answerId: +answers[index] || null,
-  }));
+  // const result = shuffled.map((item, index) => ({
+  //   questionId: +item.id,
+  //   answerId: +answers[index] || null,
+  // }));
+  const result = shuffled.map((item, index) => {
+    if (item.options.length > 1) {
+      return {
+        questionId: Number(item.id),
+        answerId: answers[index] ? Number(answers[index]) : null,
+      };
+    } else {
+      return {
+        questionId: Number(item.id),
+        textAnswer: answers[index] || null,
+      };
+    }
+  });
 
   const navigate = useNavigate();
 
@@ -179,26 +193,38 @@ const TestPage = () => {
                 </Box>
               </Typography>
             </Box>
-
-            <RadioGroup
-              value={answers[index] || ""}
-              onChange={(e) => {
-                setAnswers((prev) => ({ ...prev, [index]: e.target.value }));
-              }}
-            >
-              {item.options.map((option, idx) => (
-                <FormControlLabel
-                  key={idx}
-                  value={option.id}
-                  control={<Radio />}
-                  label={
-                    <Typography variant="body1" sx={{ fontWeight: "400" }}>
-                      {option.text}
-                    </Typography>
-                  }
-                />
-              ))}
-            </RadioGroup>
+            {item.options.length > 1 ? (
+              <RadioGroup
+                value={answers[index] || ""}
+                onChange={(e) => {
+                  setAnswers((prev) => ({ ...prev, [index]: e.target.value }));
+                }}
+              >
+                {item.options.map((option, idx) => (
+                  <FormControlLabel
+                    key={idx}
+                    value={option.id}
+                    control={<Radio />}
+                    label={
+                      <Typography variant="body1" sx={{ fontWeight: "400" }}>
+                        {option.text}
+                      </Typography>
+                    }
+                  />
+                ))}
+              </RadioGroup>
+            ) : (
+              <TextField
+                // name="textAnswer"
+                // id="textAnswer"
+                label="Text Answer"
+                variant="standard"
+                value={answers[index] || ""}
+                onChange={(e) => {
+                  setAnswers((prev) => ({ ...prev, [index]: e.target.value }));
+                }}
+              />
+            )}
           </Paper>
         ))}
         <TestPageModal result={result} id={id} />

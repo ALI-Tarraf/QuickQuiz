@@ -29,7 +29,7 @@ const StudentTestResults = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [filter, setFilter] = useState("all");
-  const [filteredStudents, setFilteredStudents] = useState([]);
+  const [filteredTest, setFilteredTest] = useState([]);
 
   const handleFilterChange = (event, newFilter) => {
     if (newFilter !== null) {
@@ -47,7 +47,7 @@ const StudentTestResults = () => {
       if (filter === "fail") return percentage < 60;
       return true;
     });
-    setFilteredStudents(newFiltered);
+    setFilteredTest(newFiltered);
   }, [filter, studentResults]);
   if (isLoading) return <Loader />;
 
@@ -66,7 +66,7 @@ const StudentTestResults = () => {
       >
         Test Results
       </Typography>
-
+      {console.log(studentResults)}
       <Box sx={{ p: { xs: 1, sm: 2, md: 4 } }}>
         <ToggleButtonGroup
           value={filter}
@@ -117,16 +117,16 @@ const StudentTestResults = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {filteredStudents?.map((student) => (
+              {filteredTest?.map((test) => (
                 <TableRow
                   sx={{
                     backgroundColor:
-                      (student.score / student.total_marks) * 100 >= 60
+                      (test.score / test.total_marks) * 100 >= 60
                         ? "rgba(172, 255, 47, 0.306)"
                         : "rgb(255, 0, 0,0.306)",
                     borderBottom: "2px solid rgba(128, 128, 128, 0.702)",
                   }}
-                  key={student.id}
+                  key={test.exam_id}
                 >
                   <TableCell
                     align="center"
@@ -135,7 +135,7 @@ const StudentTestResults = () => {
                       fontWeight: { xs: 400, md: 500 },
                     }}
                   >
-                    {student.exam_title}
+                    {test.exam_title}
                   </TableCell>
                   <TableCell
                     align="center"
@@ -143,12 +143,12 @@ const StudentTestResults = () => {
                       fontSize: { xs: "15px", md: "17px" },
                       fontWeight: { xs: 400, md: 500 },
                       color:
-                        (student.score / student.total_marks) * 100 >= 60
+                        (test.score / test.total_marks) * 100 >= 60
                           ? "green"
                           : "red",
                     }}
                   >
-                    {student.score}/{student.total_marks}
+                    {test.score}/{test.total_marks}
                   </TableCell>
                   <TableCell
                     align="center"
@@ -156,12 +156,12 @@ const StudentTestResults = () => {
                       fontSize: { xs: "15px", md: "17px" },
                       fontWeight: { xs: 400, md: 500 },
                       color:
-                        (student.score / student.total_marks) * 100 >= 60
+                        (test.score / test.total_marks) * 100 >= 60
                           ? "green"
                           : "red",
                     }}
                   >
-                    {((student.score / student.total_marks) * 100).toFixed(1)}%
+                    {((test.score / test.total_marks) * 100).toFixed(1)}%
                   </TableCell>
                 </TableRow>
               ))}
