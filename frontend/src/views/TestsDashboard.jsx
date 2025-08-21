@@ -20,7 +20,9 @@ const TestsDashboard = () => {
   useEffect(() => {
     dispatch(getUpcomingTests());
   }, [dispatch]);
-
+  {
+    console.log(upcomingTests);
+  }
   if (isLoading) return <Loader />;
   if (error) return <Errorpage />;
 
@@ -82,6 +84,7 @@ const TestsDashboard = () => {
             Create new test
           </Button>
         </Box>
+
         {upcomingTests?.length === 0 ? (
           <NoResultsPage message="There are no tests to edit or delete yet" />
         ) : (

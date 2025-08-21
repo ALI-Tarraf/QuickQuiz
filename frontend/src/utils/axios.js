@@ -29,7 +29,7 @@ axiosInstance.interceptors.response.use(
       error.response?.data?.message === "Unauthenticated."
     ) {
       localStorage.removeItem("access_token");
-      sessionStorage.clear();
+      // sessionStorage.clear();
       window.location.href = "/";
     }
 

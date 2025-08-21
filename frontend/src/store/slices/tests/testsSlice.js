@@ -271,6 +271,7 @@ const tsetsSlice = createSlice({
         state.error = null;
         state.isLoading = false;
         state.upcomingTests = action.payload.data;
+        console.log(action.payload.data);
       })
       .addCase(getUpcomingTests.rejected, (state, action) => {
         state.isLoading = false;

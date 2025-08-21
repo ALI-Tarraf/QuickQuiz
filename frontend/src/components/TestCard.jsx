@@ -21,8 +21,6 @@ const TestCard = ({ value, isInResultsPage = false }) => {
 
   const [status, setStatus] = useState(false);
 
-  const now = new Date();
-
   const [hours, minutes, seconds] = time.split(":").map(Number);
 
   const testTime = new Date();
@@ -32,11 +30,15 @@ const TestCard = ({ value, isInResultsPage = false }) => {
   allowedTime.setHours(hours, minutes + 5, seconds, 0);
 
   useEffect(() => {
-    if (testTime <= now && now < allowedTime && checkDate) {
-      setStatus(true);
-    } else {
-      setStatus(false);
-    }
+    const interval = setInterval(() => {
+      const now = new Date();
+      if (testTime <= now && now < allowedTime && checkDate) {
+        setStatus(true);
+      } else {
+        setStatus(false);
+      }
+    }, 1000);
+    return () => clearInterval(interval);
   }, []);
 
   return (

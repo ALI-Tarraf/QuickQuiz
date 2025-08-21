@@ -66,7 +66,7 @@ const StudentTestResults = () => {
       >
         Test Results
       </Typography>
-      {console.log(studentResults)}
+
       <Box sx={{ p: { xs: 1, sm: 2, md: 4 } }}>
         <ToggleButtonGroup
           value={filter}

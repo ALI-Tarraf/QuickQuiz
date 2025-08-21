@@ -37,9 +37,7 @@ const validationSchema = Yup.object().shape({
     .of(
       Yup.object().shape({
         questionText: Yup.string().required("Please enter the question text"),
-        options: Yup.array()
-          .of(Yup.string().required("Please enter option"))
-          .min(2, "It should contain at least two options"),
+        options: Yup.array().of(Yup.string().required("Please enter option")),
         correctAnswer: Yup.string().required(
           "Please select the correct answer"
         ),
@@ -427,7 +425,7 @@ function UpdateTest() {
                       variant="outlined"
                       color="error"
                       onClick={() => {
-                        if (question.options.length > 2) {
+                        if (question.options.length > 1) {
                           const newOptions = [...question.options.slice(0, -1)];
                           setFieldValue(
                             `questions.${index}.options`,

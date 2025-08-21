@@ -215,9 +215,7 @@ const TestPage = () => {
               </RadioGroup>
             ) : (
               <TextField
-                // name="textAnswer"
-                // id="textAnswer"
-                label="Text Answer"
+                label="Answer here"
                 variant="standard"
                 value={answers[index] || ""}
                 onChange={(e) => {
