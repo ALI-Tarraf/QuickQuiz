@@ -6,66 +6,77 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+
 class UserController extends Controller
 {
+    /**
+     * Get the currently authenticated user.
+     */
     public function getUser(Request $request)
     {
+        // Return the authenticated user as JSON
         return response()->json(Auth::user());
     }
 
- public function getUsers(Request $request)
-{
-    $users = User::where('id', '!=', Auth::id())
-        ->with('teacher') // يجلب بيانات المدرس المرتبطة بالمستخدم
-        ->get()
-        ->map(function ($user) {
-            return [
-                'id' => $user->id,
-                'first_name' => $user->first_name,
-                'last_name' => $user->last_name,
-                'email'=>$user->email,
-                'img'=>$user->img,
-                'role' => $user->role,
-                'created_at' => $user->created_at,
-                'specialization' => $user->role === 'teacher' ? $user->teacher?->specialization : " ", // الاختصاص من جدول teachers
-            ];
-        });
+    /**
+     * Get all users except the currently authenticated one,
+     * including teacher specialization if the user is a teacher.
+     */
+    public function getUsers(Request $request)
+    {
+        $users = User::where('id', '!=', Auth::id()) // Exclude current user
+            ->with('teacher') // Eager load teacher relation
+            ->get()
+            ->map(function ($user) {
+                return [
+                    'id' => $user->id,
+                    'first_name' => $user->first_name,
+                    'last_name' => $user->last_name,
+                    'email' => $user->email,
+                    'img' => $user->img,
+                    'role' => $user->role,
+                    'created_at' => $user->created_at,
+                    // Include teacher specialization if role is teacher
+                    'specialization' => $user->role === 'teacher' ? $user->teacher?->specialization : " ",
+                ];
+            });
 
-    return response()->json([
-        'users' => $users
-    ]);
-}
-public function deleteUser($id)
-{
-    $user = User::find($id);
-
-    if (!$user) {
-        return response()->json(['message' => 'User not found'], 404);
+        return response()->json([
+            'users' => $users
+        ]);
     }
 
-    if ($user->role === 'teacher' && $user->teacher) {
-        // حذف الامتحانات المرتبطة بالأستاذ
-        $user->teacher->exams()->delete();
+    /**
+     * Delete a user and all related data based on the user's role.
+     */
+    public function deleteUser($id)
+    {
+        $user = User::find($id);
 
-        // حذف سجل الأستاذ نفسه
-        $user->teacher->delete();
-    } elseif ($user->role === 'student' && $user->student) {
-        // حذف إجابات الطالب
-        DB::table('student_answers')->where('user_id', $user->id)->delete();
+        if (!$user) {
+            return response()->json(['message' => 'User not found'], 404);
+        }
 
-        // حذف النتائج (لو موجودة)
-        DB::table('exam_results')->where('user_id', $user->id)->delete();
+        if ($user->role === 'teacher' && $user->teacher) {
+            // Delete exams associated with the teacher
+            $user->teacher->exams()->delete();
 
-        // حذف سجل الطالب
-        $user->student->delete();
+            // Delete the teacher record
+            $user->teacher->delete();
+        } elseif ($user->role === 'student' && $user->student) {
+            // Delete student's answers
+            DB::table('student_answers')->where('user_id', $user->id)->delete();
+
+            // Delete exam results if any
+            DB::table('exam_results')->where('user_id', $user->id)->delete();
+
+            // Delete the student record
+            $user->student->delete();
+        }
+
+        // Finally, delete the user
+        $user->delete();
+
+        return response()->json(['message' => 'User and related data deleted successfully']);
     }
-
-    // حذف المستخدم
-    $user->delete();
-
-    return response()->json(['message' => 'User and related data deleted successfully']);
-}
-
-
-
 }
