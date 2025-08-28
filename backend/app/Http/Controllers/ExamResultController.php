@@ -80,6 +80,7 @@ class ExamResultController extends Controller
                 'id'           => $result->user->id,
                 'student_name' => $result->user ? $result->user->first_name . ' ' . $result->user->last_name : null,
                 'score'        => $result->score,
+                'img'          => $result->user ? $result->user->img : null
             ];
         });
 
@@ -89,7 +90,8 @@ class ExamResultController extends Controller
             'test_title'     => $exam->title,
             'total_marks'    => $exam->total_marks,
             'participants'   => $formattedResults->count(),
-            'student_results'=> $formattedResults
+            'student_results'=> $formattedResults,
+
         ]);
     }
 
