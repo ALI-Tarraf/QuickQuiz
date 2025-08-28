@@ -97,7 +97,7 @@ class ExamsController extends Controller
     /**
      * Show exam details (students cannot see correct answers).
      */
-    public function show($id)
+public function show($id)
 {
     $exam = Exam::with('questions.questionAnswers')->find($id);
 
@@ -110,28 +110,44 @@ class ExamsController extends Controller
     $endDateTime = $startDateTime->copy()->addMinutes($exam->duration_minutes);
     $now = Carbon::now();
 
-    // نفس الشروط تنطبق على الطالب والأستاذ
     if (in_array($user->role, ['student', 'teacher'])) {
+
+        $result = $exam->results()->where('user_id', $user->id)->first();
+
+        // منع الدخول إذا سبق له التقديم
+      if ($result && $result->score !== null) {
+    return response()->json(['error' => 'You have already submitted this exam'], 403);
+}
+        // منع الدخول قبل بداية الامتحان
         if ($now->lt($startDateTime)) {
             return response()->json(['error' => 'You cannot access the exam before it starts'], 403);
         }
 
+        // منع الدخول بعد انتهاء الامتحان
         if ($now->gt($endDateTime)) {
             return response()->json(['error' => 'The exam has already ended'], 403);
         }
 
-        $gracePeriodEnd = $startDateTime->copy()->addMinutes(5);
-        if ($now->gt($gracePeriodEnd)) {
-            return response()->json(['error' => 'You are more than 5 minutes late. You cannot access the exam'], 403);
-        }
+        // شرط الخمس دقائق ينطبق فقط على الطلاب الذين **لم يبدأوا الامتحان بعد** ولم يقدموا نتيجة
+        if ((!$result || !$result->started_at) && (!$result || !$result->submitted_at)) {
+            $gracePeriodEnd = $startDateTime->copy()->addMinutes(5);
+            if ($now->gt($gracePeriodEnd)) {
+                return response()->json(['error' => 'You cannot access the exam after 5 minutes from its start'], 403);
+            }
 
-        // التحقق من أن المستخدم لم يقدم الامتحان سابقاً
-        $hasResult = $exam->results()->where('user_id', $user->id)->exists();
-        if ($hasResult) {
-            return response()->json(['error' => 'You have already submitted this exam'], 403);
+            // إنشاء سجل بداية الامتحان عند الدخول لأول مرة
+            if (!$result) {
+                $result = $exam->results()->create([
+                    'user_id' => $user->id,
+                    'started_at' => $now,
+                ]);
+            } else {
+                $result->update(['started_at' => $now]);
+            }
         }
     }
 
+    // تجهيز البيانات للعرض
     $data = [
         'testName' => $exam->title,
         'testHour' => $exam->time,
