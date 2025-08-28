@@ -81,13 +81,23 @@ function UpdateTest() {
   const [initialValues, setInitialValues] = useState({});
 
   useEffect(() => {
+    const interval = setInterval(() => {
+      const now = new Date();
+      now.setHours(now.getHours());
+      const hours = String(now.getHours()).padStart(2, "0");
+      const minutes = String(now.getMinutes() + 1).padStart(2, "0"); // Add 1 hour
+      setMinTime(`${hours}:${minutes}`);
+    }, 10000);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
     const now = new Date();
-    now.setHours(now.getHours() + 1); // Add 1 hour
+    now.setHours(now.getHours());
     const hours = String(now.getHours()).padStart(2, "0");
-    const minutes = String(now.getMinutes()).padStart(2, "0");
+    const minutes = String(now.getMinutes() + 1).padStart(2, "0"); // Add 1 minute
     setMinTime(`${hours}:${minutes}`);
     dispatch(getTestInfo(id));
-    console.log(initialValues);
   }, [id, dispatch]);
 
   useEffect(() => {
@@ -96,7 +106,6 @@ function UpdateTest() {
 
   const submitHandler = (values) => {
     dispatch(editTest({ id, values }));
-    console.log(values);
   };
   if (isLoading) return <Loader />;
   if (error) return <Errorpage />;

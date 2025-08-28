@@ -95,6 +95,15 @@ function CreateTest() {
     const hours = String(now.getHours()).padStart(2, "0");
     const minutes = String(now.getMinutes()).padStart(2, "0");
     setMinTime(`${hours}:${minutes}`);
+
+    const interval = setInterval(() => {
+      const now = new Date();
+      now.setHours(now.getHours() + 1); // Add 1 hour
+      const hours = String(now.getHours()).padStart(2, "0");
+      const minutes = String(now.getMinutes()).padStart(2, "0");
+      setMinTime(`${hours}:${minutes}`);
+    }, 10000);
+    return () => clearInterval(interval);
   }, []);
   return (
     <>

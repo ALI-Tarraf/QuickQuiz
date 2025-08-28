@@ -277,7 +277,7 @@ const tsetsSlice = createSlice({
         state.isLoading = false;
         state.error = action.payload;
       });
-    // delete product
+    // delete test
     builder
       .addCase(deleteTest.pending, (state) => {
         state.operationError = null;
@@ -299,7 +299,7 @@ const tsetsSlice = createSlice({
         state.message =
           action.payload.response.data.message || "Deletion not successful";
       });
-    // edit product
+    // edit test
     builder
       .addCase(editTest.pending, (state) => {
         state.operationError = null;
