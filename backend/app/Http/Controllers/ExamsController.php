@@ -98,89 +98,102 @@ class ExamsController extends Controller
      * Show exam details (students cannot see correct answers).
      */
     public function show($id)
-    {
-        $exam = Exam::with('questions.questionAnswers')->find($id);
+{
+    $exam = Exam::with('questions.questionAnswers')->find($id);
 
-        if (!$exam) {
-            return response()->json(['error' => 'Exam not found'], 404);
-        }
-
-        $user = Auth::user();
-        $startDateTime = Carbon::parse($exam->date . ' ' . $exam->time);
-        $endDateTime = $startDateTime->copy()->addMinutes($exam->duration_minutes);
-
-        if ($user->role === 'student') {
-            $now = Carbon::now();
-
-            if ($now->lt($startDateTime)) {
-                return response()->json(['error' => 'You cannot access the exam before it starts'], 403);
-            }
-
-            $gracePeriodEnd = $startDateTime->copy()->addMinutes(5);
-            if ($now->gt($gracePeriodEnd)) {
-                return response()->json(['error' => 'You are more than 5 minutes late. You cannot access the exam'], 403);
-            }
-
-            $hasResult = $exam->results()->where('user_id', $user->id)->exists();
-            if ($hasResult) {
-                return response()->json(['error' => 'You have already submitted this exam'], 403);
-            }
-        }
-
-        $data = [
-            'testName' => $exam->title,
-            'testHour' => $exam->time,
-            'testDate' => $exam->date,
-            'testDuration' => $exam->duration_minutes,
-            'questions' => $exam->questions ? $exam->questions->map(function ($question) {
-                return [
-                    'id' => $question->id,
-                    'question' => $question->question_text,
-                    'mark' => $question->mark,
-                    'options' => $question->questionAnswers ? $question->questionAnswers->map(function ($answer) {
-                        return [
-                            'id' => $answer->id,
-                            'text' => $answer->answer_text,
-                        ];
-                    }) : [],
-                ];
-            }) : [],
-        ];
-
-        return response()->json(['exam' => $data]);
+    if (!$exam) {
+        return response()->json(['error' => 'Exam not found'], 404);
     }
 
-    /**
-     * Get full exam details including correct answers (for teacher).
-     */
+    $user = Auth::user();
+    $startDateTime = Carbon::parse($exam->date . ' ' . $exam->time);
+    $endDateTime = $startDateTime->copy()->addMinutes($exam->duration_minutes);
+    $now = Carbon::now();
+
+    // نفس الشروط تنطبق على الطالب والأستاذ
+    if (in_array($user->role, ['student', 'teacher'])) {
+        if ($now->lt($startDateTime)) {
+            return response()->json(['error' => 'You cannot access the exam before it starts'], 403);
+        }
+
+        if ($now->gt($endDateTime)) {
+            return response()->json(['error' => 'The exam has already ended'], 403);
+        }
+
+        $gracePeriodEnd = $startDateTime->copy()->addMinutes(5);
+        if ($now->gt($gracePeriodEnd)) {
+            return response()->json(['error' => 'You are more than 5 minutes late. You cannot access the exam'], 403);
+        }
+
+        // التحقق من أن المستخدم لم يقدم الامتحان سابقاً
+        $hasResult = $exam->results()->where('user_id', $user->id)->exists();
+        if ($hasResult) {
+            return response()->json(['error' => 'You have already submitted this exam'], 403);
+        }
+    }
+
+    $data = [
+        'testName' => $exam->title,
+        'testHour' => $exam->time,
+        'testDate' => $exam->date,
+        'testDuration' => $exam->duration_minutes,
+        'questions' => $exam->questions ? $exam->questions->map(function ($question) {
+            return [
+                'id' => $question->id,
+                'question' => $question->question_text,
+                'mark' => $question->mark,
+                'options' => $question->questionAnswers ? $question->questionAnswers->map(function ($answer) {
+                    return [
+                        'id' => $answer->id,
+                        'text' => $answer->answer_text,
+                    ];
+                }) : [],
+            ];
+        }) : [],
+    ];
+
+    return response()->json(['exam' => $data]);
+}
+
     public function get($id)
-    {
-        $exam = Exam::with('questions.questionAnswers')->find($id);
+{
+    $exam = Exam::with('questions.questionAnswers')->find($id);
 
-        if (!$exam) {
-            return response()->json(['error' => 'Exam not found'], 404);
-        }
-
-        $data = [
-            'testName' => $exam->title,
-            'testDuration' => $exam->duration_minutes,
-            'testHour' => $exam->time,
-            'testDate' => $exam->date,
-            'totalMark' => $exam->total_marks,
-            'questions' => $exam->questions ? $exam->questions->map(function ($question) {
-                return [
-                    'questionText' => $question->question_text,
-                    'questionScore' => $question->mark,
-                    'options' => $question->questionAnswers ? $question->questionAnswers->map(function ($answer) {
-                        return $answer->answer_text;
-                    }) : [],
-                    'correctAnswer' => optional($question->questionAnswers->firstWhere('is_correct', 1))->answer_text,
-                ];
-            }) : [],
-        ];
-
-        return response()->json(['exam' => $data]);
+    if (!$exam) {
+        return response()->json(['error' => 'Exam not found'], 404);
     }
+
+    $teacher = Teacher::where('user_id', Auth::id())->first();
+    if (!$teacher || $exam->teacher_id !== $teacher->id) {
+        return response()->json(['error' => 'Unauthorized'], 403);
+    }
+
+    // منع الوصول إذا بدأ الامتحان
+    $examDateTime = Carbon::parse($exam->date . ' ' . $exam->time);
+    if (Carbon::now()->gte($examDateTime)) {
+        return response()->json(['error' => 'You cannot access this exam because it has already started'], 403);
+    }
+
+    $data = [
+        'testName' => $exam->title,
+        'testDuration' => $exam->duration_minutes,
+        'testHour' => $exam->time,
+        'testDate' => $exam->date,
+        'totalMark' => $exam->total_marks,
+        'questions' => $exam->questions ? $exam->questions->map(function ($question) {
+            return [
+                'questionText' => $question->question_text,
+                'questionScore' => $question->mark,
+                'options' => $question->questionAnswers ? $question->questionAnswers->map(function ($answer) {
+                    return $answer->answer_text;
+                }) : [],
+                'correctAnswer' => optional($question->questionAnswers->firstWhere('is_correct', 1))->answer_text,
+            ];
+        }) : [],
+    ];
+
+    return response()->json(['exam' => $data]);
+}
 
     /**
      * Update an existing exam (Teacher only).
