@@ -24,7 +24,7 @@ class ExamsController extends Controller
 
         $query = Exam::whereDate('date', '>=', $today);
 
-        if ($user->role === 'student') {
+        if (in_array($user->role, ['student', 'teacher'])) {
             $query->whereDoesntHave('results', function ($q) use ($user) {
                 $q->where('user_id', $user->id);
             });
