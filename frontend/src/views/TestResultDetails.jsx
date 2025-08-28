@@ -12,6 +12,8 @@ import {
   useTheme,
   ToggleButtonGroup,
   ToggleButton,
+  Avatar,
+  Stack,
 } from "@mui/material";
 import WorkspacePremiumOutlinedIcon from "@mui/icons-material/WorkspacePremiumOutlined";
 import LocalLibraryOutlinedIcon from "@mui/icons-material/LocalLibraryOutlined";
@@ -224,7 +226,16 @@ const TestResultDetails = () => {
                     fontWeight: { xs: 400, md: 500 },
                   }}
                 >
-                  {student.student_name}
+                  <Stack direction={"row"} gap={2} alignItems={"center"}>
+                    <Avatar
+                      src={`http://127.0.0.1:8000/storage/${student?.img}`}
+                      sx={{
+                        width: 40,
+                        height: 40,
+                      }}
+                    />
+                    {student.student_name}
+                  </Stack>
                 </TableCell>
                 <TableCell
                   align="center"
