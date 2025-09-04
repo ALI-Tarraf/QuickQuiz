@@ -36,6 +36,27 @@ export const deleteUser = createAsyncThunk(
     }
   }
 );
+// edit user password
+export const editPassword = createAsyncThunk(
+  "users/editPassword",
+  async (params, thunkAPI) => {
+    const { rejectWithValue } = thunkAPI;
+    try {
+      console.log(params.id);
+      console.log(params.password);
+      const res = await axios.post(`/users/${params.id}/change-password`, {
+        password: params.password,
+      });
+      if (res.status === 200) {
+        return {
+          data: res.data,
+        };
+      }
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  }
+);
 const usersSlice = createSlice({
   name: "users",
 
@@ -98,6 +119,26 @@ const usersSlice = createSlice({
         state.status = true;
         state.message =
           action.payload.response.data.message || "Deletion not successful";
+      });
+    // edit user password
+    builder
+      .addCase(editPassword.pending, (state) => {
+        state.operationError = null;
+        state.operationLoading = true;
+      })
+      .addCase(editPassword.fulfilled, (state) => {
+        state.operationError = null;
+        state.operationLoading = false;
+        state.status = true;
+        state.message = "password edited successfully";
+      })
+      .addCase(editPassword.rejected, (state, action) => {
+        state.operationLoading = false;
+        state.operationError = action.payload;
+        state.status = true;
+        state.message =
+          action.payload.response.data.message ||
+          "the modification process failed ";
       });
   },
 });

@@ -20,9 +20,7 @@ const TestsDashboard = () => {
   useEffect(() => {
     dispatch(getUpcomingTests());
   }, [dispatch]);
-  {
-    console.log(upcomingTests);
-  }
+
   if (isLoading) return <Loader />;
   if (error) return <Errorpage />;
 

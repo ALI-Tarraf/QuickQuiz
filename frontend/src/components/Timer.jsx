@@ -1,27 +1,31 @@
 import { Box } from "@mui/material";
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+// import { useParams } from "react-router-dom";
 
-const Timer = ({ duration, onTimeUp }) => {
-  const { id } = useParams();
+const Timer = ({ testHour, startDate, duration, onTimeUp }) => {
+  // const { id } = useParams();
   const now = new Date();
-  const key = `test_end_time_${id}`;
-  let endTime = sessionStorage.getItem(key);
+  // const key = `test_end_time_${id}`;
+  // let endTime = sessionStorage.getItem(key);
+  let startTime = new Date(`${startDate}T${testHour}`);
+
+  let endTime = new Date(startTime.getTime() + duration * 60000);
 
   const [timeRemaining, setTimeRemaining] = useState(
-    endTime ? Math.floor((new Date(endTime) - now) / 1000) : duration * 60
+    endTime ? Math.floor((endTime - now) / 1000) : duration * 60
   );
   const hours = Math.floor(timeRemaining / 3600);
   const minutes = Math.floor((timeRemaining % 3600) / 60);
   const seconds = (timeRemaining % 3600) % 60;
 
-  useEffect(() => {
-    if (!endTime) {
-      const newTime = new Date(now.getTime() + duration * 60000); // 60000 ms = 1 minute
+  // useEffect(() => {
+  //   if (!endTime) {
+  //     // const newTime = new Date(now.getTime() + duration * 60000); // 60000 ms = 1 minute
+  //     const newTime = new Date(startTime.getTime() + duration * 60000); // 60000 ms = 1 minute
 
-      sessionStorage.setItem(key, newTime);
-    }
-  }, []);
+  //     sessionStorage.setItem(key, newTime);
+  //   }
+  // }, []);
 
   useEffect(() => {
     if (timeRemaining <= 0) {

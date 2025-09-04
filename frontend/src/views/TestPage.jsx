@@ -54,7 +54,7 @@ const TestPage = () => {
 
   const [open, setOpen] = useState(false);
   const [answers, setAnswers] = useState({});
-  console.log(shuffled);
+  console.log(questionsData);
   // const result = shuffled.map((item, index) => ({
   //   questionId: +item.id,
   //   answerId: +answers[index] || null,
@@ -78,12 +78,12 @@ const TestPage = () => {
   const handleTimeUp = () => {
     dispatch(submitAnswers({ id, result }));
     navigate("/testresults", { replace: true });
-    sessionStorage.clear();
+    // sessionStorage.clear();
   };
   const handleExit = () => {
     dispatch(submitAnswers({ id }));
     navigate("/testresults", { replace: true });
-    sessionStorage.clear();
+    // sessionStorage.clear();
   };
 
   useEffect(() => {
@@ -152,6 +152,8 @@ const TestPage = () => {
         >{`${questionsData.testName.toLocaleUpperCase()} TEST`}</Typography>
         {questionsData?.testDuration && (
           <Timer
+            testHour={questionsData?.testHour}
+            startDate={questionsData?.testDate}
             duration={questionsData?.testDuration}
             onTimeUp={handleTimeUp}
           />

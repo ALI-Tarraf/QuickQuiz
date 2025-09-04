@@ -30,6 +30,7 @@ import { formatDate } from "../utils/formateDate";
 import Loader from "../components/Loader";
 import Errorpage from "../components/ErrorPage";
 import OperationAlert from "../components/OperationAlert";
+import EditPasswordModal from "../components/EditPasswordModal";
 const style = {
   position: "absolute",
   top: "50%",
@@ -46,6 +47,7 @@ const style = {
 function AdminDashboard() {
   const [filter, setFilter] = useState("all");
   const [open, setOpen] = useState(false);
+
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [userId, setUserId] = useState(null);
   const dispatch = useDispatch();
@@ -248,30 +250,39 @@ function AdminDashboard() {
                     </TableCell>
                     <TableCell
                       sx={{
-                        fontSize: { xs: "15px", md: "17px" },
+                        fontSize: { xs: "15px", md: "15px" },
                         fontWeight: { xs: 400, md: 500 },
                       }}
                     >
-                      <Button
-                        variant="contained"
-                        color="error"
-                        sx={{
-                          borderRadius: 2,
-                        }}
-                        onClick={() => {
-                          setOpen(true);
-                          setUserId(user.id);
-                        }}
-                        disabled={
-                          operationLoading && user?.id === userId ? true : false
-                        }
-                      >
-                        {operationLoading && user?.id === userId ? (
-                          <CircularProgress size={20} color="inherit" />
-                        ) : (
-                          <DeleteIcon />
-                        )}
-                      </Button>
+                      <Box sx={{ display: "flex", gap: 1, height: "100%" }}>
+                        <EditPasswordModal
+                          user={user}
+                          userId={userId}
+                          setUserId={setUserId}
+                        />
+                        <Button
+                          variant="contained"
+                          color="error"
+                          sx={{
+                            borderRadius: 2,
+                          }}
+                          onClick={() => {
+                            setOpen(true);
+                            setUserId(user?.id);
+                          }}
+                          disabled={
+                            operationLoading && user?.id === userId
+                              ? true
+                              : false
+                          }
+                        >
+                          {operationLoading && user?.id === userId ? (
+                            <CircularProgress size={20} color="inherit" />
+                          ) : (
+                            <DeleteIcon />
+                          )}
+                        </Button>
+                      </Box>
                     </TableCell>
                   </TableRow>
                 ))}
