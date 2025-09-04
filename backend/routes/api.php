@@ -26,12 +26,6 @@ Route::post('/register', [AuthController::class, 'register']);
 // User login
 Route::post('/login', [AuthController::class, 'login']);
 
-// Send verification code (e.g., for email or 2FA)
-Route::post('/send-code', [VerificationController::class, 'sendVerificationCode']);
-
-// Verify code sent to user
-Route::post('/verify-code', [VerificationController::class, 'verifyCode']);
-
 /*
 |--------------------------------------------------------------------------
 | Routes for Authenticated Users
@@ -63,6 +57,9 @@ Route::middleware(['auth:api', 'role:admin'])->group(function () {
 
     // Delete a specific user and related data
     Route::delete('user/{id}', [UserController::class, 'deleteUser']);
+
+
+Route::post('/users/{id}/change-password', [UserController::class, 'changePassword']);
 
     // Example: Additional admin routes can be added here
     // Route::post('/subjects', [SubjectsController::class, 'createSubject']);

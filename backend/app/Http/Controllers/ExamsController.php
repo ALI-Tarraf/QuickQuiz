@@ -114,28 +114,29 @@ public function show($id)
 
         $result = $exam->results()->where('user_id', $user->id)->first();
 
-        // منع الدخول إذا سبق له التقديم
-      if ($result && $result->score !== null) {
-    return response()->json(['error' => 'You have already submitted this exam'], 403);
-}
-        // منع الدخول قبل بداية الامتحان
+        // Prevent access if the exam has already been submitted
+        if ($result && $result->score !== null) {
+            return response()->json(['error' => 'You have already submitted this exam'], 403);
+        }
+
+        // Prevent access before the exam starts
         if ($now->lt($startDateTime)) {
             return response()->json(['error' => 'You cannot access the exam before it starts'], 403);
         }
 
-        // منع الدخول بعد انتهاء الامتحان
+        // Prevent access after the exam ends
         if ($now->gt($endDateTime)) {
             return response()->json(['error' => 'The exam has already ended'], 403);
         }
 
-        // شرط الخمس دقائق ينطبق فقط على الطلاب الذين **لم يبدأوا الامتحان بعد** ولم يقدموا نتيجة
+        // 5-minute grace period applies only for students who haven't started the exam yet and haven't submitted a result
         if ((!$result || !$result->started_at) && (!$result || !$result->submitted_at)) {
             $gracePeriodEnd = $startDateTime->copy()->addMinutes(5);
             if ($now->gt($gracePeriodEnd)) {
                 return response()->json(['error' => 'You cannot access the exam after 5 minutes from its start'], 403);
             }
 
-            // إنشاء سجل بداية الامتحان عند الدخول لأول مرة
+            // Create a record marking the start of the exam on first access
             if (!$result) {
                 $result = $exam->results()->create([
                     'user_id' => $user->id,
@@ -147,7 +148,7 @@ public function show($id)
         }
     }
 
-    // تجهيز البيانات للعرض
+    // Prepare data for response
     $data = [
         'testName' => $exam->title,
         'testHour' => $exam->time,
@@ -184,7 +185,7 @@ public function show($id)
         return response()->json(['error' => 'Unauthorized'], 403);
     }
 
-    // منع الوصول إذا بدأ الامتحان
+
     $examDateTime = Carbon::parse($exam->date . ' ' . $exam->time);
     if (Carbon::now()->gte($examDateTime)) {
         return response()->json(['error' => 'You cannot access this exam because it has already started'], 403);

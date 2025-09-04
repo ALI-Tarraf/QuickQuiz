@@ -6,7 +6,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-
+use Illuminate\Support\Facades\Hash;
 class UserController extends Controller
 {
     /**
@@ -79,4 +79,25 @@ class UserController extends Controller
 
         return response()->json(['message' => 'User and related data deleted successfully']);
     }
+   public function changePassword(Request $request, $id)
+{
+    // 1. Validate input (no need for user_id now)
+    $request->validate([
+        'new_password' => 'required|string|min:8',
+    ]);
+
+    // 2. Find user
+    $user = User::find($id);
+
+    if (!$user) {
+        return response()->json(['message' => 'User not found'], 404);
+    }
+
+    // 3. Update password
+    $user->password = Hash::make($request->new_password);
+    $user->save();
+
+    return response()->json(['message' => 'Password updated successfully']);
+}
+
 }
