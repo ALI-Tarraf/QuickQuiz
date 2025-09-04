@@ -79,25 +79,25 @@ class UserController extends Controller
 
         return response()->json(['message' => 'User and related data deleted successfully']);
     }
-   public function changePassword(Request $request, $id)
+
+
+public function changePassword(Request $request, $id)
 {
-    // 1. Validate input (no need for user_id now)
     $request->validate([
         'password' => 'required|string|min:8',
     ]);
 
-    // 2. Find user
     $user = User::find($id);
-
     if (!$user) {
         return response()->json(['message' => 'User not found'], 404);
     }
 
-    // 3. Update password
-    $user->password = Hash::make($request->new_password);
+    // Hash the incoming plain password and save
+    $user->password = Hash::make($request->password);
     $user->save();
 
     return response()->json(['message' => 'Password edited successfully']);
 }
+
 
 }
