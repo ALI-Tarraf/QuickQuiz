@@ -83,7 +83,7 @@ class UserController extends Controller
 {
     // 1. Validate input (no need for user_id now)
     $request->validate([
-        'new_password' => 'required|string|min:8',
+        'password' => 'required|string|min:8',
     ]);
 
     // 2. Find user
@@ -97,7 +97,7 @@ class UserController extends Controller
     $user->password = Hash::make($request->new_password);
     $user->save();
 
-    return response()->json(['message' => 'Password updated successfully']);
+    return response()->json(['message' => 'Password edited successfully']);
 }
 
 }
