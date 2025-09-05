@@ -188,7 +188,12 @@ const TestResultDetails = () => {
                     fontWeight: { xs: 400, md: 500 },
                   }}
                 >
-                  <Stack direction={"row"} gap={2} alignItems={"center"}>
+                  <Box
+                    display={"flex"}
+                    alignItems={"center"}
+                    gap={{ xs: 1, md: 2 }}
+                    justifyContent={"center"}
+                  >
                     <Avatar
                       src={`http://127.0.0.1:8000/storage/${student?.img}`}
                       sx={{
@@ -197,7 +202,7 @@ const TestResultDetails = () => {
                       }}
                     />
                     {student.student_name}
-                  </Stack>
+                  </Box>
                 </TableCell>
                 <TableCell
                   align="center"
