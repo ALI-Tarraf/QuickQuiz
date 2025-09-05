@@ -58,7 +58,6 @@ export default function TestPageModal({ result, id }) {
     dispatch(submitAnswers({ id, result }));
     navigate("/testresults", { replace: true });
     // sessionStorage.clear();
-    console.log(result);
   };
 
   const getModalContent = () => {

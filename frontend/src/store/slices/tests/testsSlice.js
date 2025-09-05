@@ -271,7 +271,6 @@ const tsetsSlice = createSlice({
         state.error = null;
         state.isLoading = false;
         state.upcomingTests = action.payload.data;
-        console.log(action.payload.data);
       })
       .addCase(getUpcomingTests.rejected, (state, action) => {
         state.isLoading = false;
@@ -297,7 +296,7 @@ const tsetsSlice = createSlice({
         state.operationError = action.payload;
         state.status = true;
         state.message =
-          action.payload.response.data.message || "Deletion not successful";
+          action.payload.response.data.message || "Deletion failed";
       });
     // edit test
     builder
@@ -309,7 +308,7 @@ const tsetsSlice = createSlice({
         state.operationError = null;
         state.operationLoading = false;
         state.status = true;
-        state.message = "The test has been successfully modified";
+        state.message = "The test has been modified successfully ";
       })
       .addCase(editTest.rejected, (state, action) => {
         state.operationLoading = false;

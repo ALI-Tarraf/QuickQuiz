@@ -23,44 +23,7 @@ import { getTeacherTestResultsDetails } from "../store/slices/tests/testsSlice";
 import { useParams } from "react-router-dom";
 import Loader from "../components/Loader";
 import Errorpage from "../components/ErrorPage";
-// const studentData = {
-//   testname: "Midterm Exam - CS101",
-//   total: 100,
-//   totalparticipants: 6,
 
-//   students: [
-//     {
-//       name: "John Smith",
-//       id: "1",
-//       score: 75,
-//     },
-//     {
-//       name: "Sarah Ahmed",
-//       id: "123",
-//       score: 60,
-//     },
-//     {
-//       name: "John Smith",
-//       id: "1234",
-//       score: 75,
-//     },
-//     {
-//       name: "Sarah Ahmed",
-//       id: "12345",
-//       score: 59,
-//     },
-//     {
-//       name: "John Smith",
-//       id: "123456",
-//       score: 75,
-//     },
-//     {
-//       name: "Sarah Ahmed",
-//       id: "12347",
-//       score: 40,
-//     },
-//   ],
-// };
 const TestResultDetails = () => {
   const dispatch = useDispatch();
   const { isLoading, error, teacherResults } = useSelector(
@@ -72,8 +35,7 @@ const TestResultDetails = () => {
   const [filteredStudents, setFilteredStudents] = useState(
     teacherResults?.student_results
   );
-  console.log(teacherResults);
-  console.log(filteredStudents);
+
   const { id } = useParams();
 
   const handleFilterChange = (event, newFilter) => {

@@ -42,8 +42,6 @@ export const editPassword = createAsyncThunk(
   async (params, thunkAPI) => {
     const { rejectWithValue } = thunkAPI;
     try {
-      console.log(params.id);
-      console.log(params.password);
       const res = await axios.post(`/users/${params.id}/change-password`, {
         password: params.password,
       });
@@ -91,7 +89,6 @@ const usersSlice = createSlice({
         state.error = null;
         state.isLoading = false;
         state.users = action.payload.data.users;
-        console.log(action.payload.data.users);
       })
       .addCase(getUsers.rejected, (state, action) => {
         state.isLoading = false;

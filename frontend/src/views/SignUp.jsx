@@ -18,7 +18,7 @@ import {
   Typography,
 } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 
 const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -355,6 +355,26 @@ const Signup = () => {
                       {isLoading ? "Loading..." : "Register"}
                     </Button>
                   </Stack>
+                  <Typography
+                    variant="subtitle2"
+                    sx={{
+                      textAlign: "center",
+                      marginTop: 3.5,
+                    }}
+                  >
+                    <Box component="span">{`Do you have an account? `}</Box>
+                    <NavLink to="/" style={{ textDecoration: "none" }}>
+                      <Box
+                        component="span"
+                        sx={{
+                          color: "black",
+                          borderBottom: "1px solid",
+                        }}
+                      >
+                        Log In
+                      </Box>
+                    </NavLink>
+                  </Typography>
                 </Box>
               </Form>
             </Box>

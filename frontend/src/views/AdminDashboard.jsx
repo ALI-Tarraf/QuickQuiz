@@ -178,7 +178,7 @@ function AdminDashboard() {
                       fontWeight: "bold",
                     }}
                   >
-                    Delete
+                    Modify & Delete
                   </TableCell>
                 </TableRow>
               </TableHead>

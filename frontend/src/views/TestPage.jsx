@@ -54,7 +54,7 @@ const TestPage = () => {
 
   const [open, setOpen] = useState(false);
   const [answers, setAnswers] = useState({});
-  console.log(questionsData);
+
   // const result = shuffled.map((item, index) => ({
   //   questionId: +item.id,
   //   answerId: +answers[index] || null,

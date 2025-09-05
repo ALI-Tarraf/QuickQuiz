@@ -30,7 +30,7 @@ const StudentTestResults = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [filter, setFilter] = useState("all");
   const [filteredTest, setFilteredTest] = useState([]);
-
+  const [rate, setRate] = useState(0);
   const handleFilterChange = (event, newFilter) => {
     if (newFilter !== null) {
       setFilter(newFilter);
@@ -48,6 +48,11 @@ const StudentTestResults = () => {
       return true;
     });
     setFilteredTest(newFiltered);
+    const average =
+      (studentResults.reduce((sum, s) => sum + s.score, 0) /
+        studentResults.reduce((sum, s) => sum + s.total_marks, 0)) *
+      100;
+    setRate(Number(average.toFixed(2)));
   }, [filter, studentResults]);
   if (isLoading) return <Loader />;
 
@@ -68,16 +73,40 @@ const StudentTestResults = () => {
       </Typography>
 
       <Box sx={{ p: { xs: 1, sm: 2, md: 4 } }}>
-        <ToggleButtonGroup
-          value={filter}
-          exclusive
-          onChange={handleFilterChange}
-          sx={{ py: { xs: 3, md: 5 } }}
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
         >
-          <ToggleButton value="all">All</ToggleButton>
-          <ToggleButton value="pass">Passed</ToggleButton>
-          <ToggleButton value="fail">Failed</ToggleButton>
-        </ToggleButtonGroup>
+          <ToggleButtonGroup
+            value={filter}
+            exclusive
+            onChange={handleFilterChange}
+            sx={{ py: { xs: 3, md: 5 } }}
+          >
+            <ToggleButton value="all">All</ToggleButton>
+            <ToggleButton value="pass">Passed</ToggleButton>
+            <ToggleButton value="fail">Failed</ToggleButton>
+          </ToggleButtonGroup>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: "4px",
+              boxShadow: " 0px 4px 10px rgba(0, 0, 0, 0.2)",
+              padding: { xs: 1, md: 2 },
+              backgroundColor: "white",
+              borderRadius: "30px",
+              height: "fit-content",
+            }}
+          >
+            <Typography sx={{ fontSize: { xs: "18px", md: "23px" } }}>
+              Average Rate: {rate}%
+            </Typography>
+          </Box>
+        </Box>
         <TableContainer component={Paper}>
           <Table size={isMobile ? "small" : "medium"}>
             <TableHead sx={{ borderBottom: "2px solid black" }}>

@@ -365,6 +365,10 @@ function UpdateTest() {
                               `questions.${index}.options.${i}`,
                               event.target.value
                             );
+                            setFieldValue(
+                              `questions.${index}.correctAnswer`,
+                              ""
+                            );
                           }}
                           value={values.questions[index].options[i]}
                           error={!!errors?.questions?.[index]?.options?.[i]}
