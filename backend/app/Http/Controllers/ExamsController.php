@@ -17,35 +17,47 @@ class ExamsController extends Controller
      * List all upcoming exams (for both students and teachers).
      * Students will only see exams they have not already taken.
      */
-    public function index()
-    {
-        $user = Auth::user();
-        $today = Carbon::today();
+public function index()
+{
+    $user = Auth::user();
+    $today = Carbon::today();
 
-        $query = Exam::whereDate('date', '>=', $today);
+    $query = Exam::whereDate('date', '>=', $today);
 
-        if (in_array($user->role, ['student', 'teacher'])) {
-            $query->whereDoesntHave('results', function ($q) use ($user) {
-                $q->where('user_id', $user->id);
-            });
+    if (in_array($user->role, ['student', 'teacher'])) {
+        $query->whereDoesntHave('results', function ($q) use ($user) {
+            $q->where('user_id', $user->id)
+              ->whereNotNull('score');
+        });
+    }
+
+    $exams = $query->with(['results' => function ($q) use ($user) {
+        $q->where('user_id', $user->id);
+    }])->get();
+
+    $exams = $exams->map(function ($exam) use ($user) {
+        $result = $exam->results->first();
+
+        $continue = false;
+        if ($result && $result->started_at && is_null($result->score)) {
+            $continue = true;
         }
 
-        $exams = $query->get();
+        return [
+            'id' => $exam->id,
+            'title' => $exam->title,
+            'total_marks' => $exam->total_marks,
+            'duration_minutes' => $exam->duration_minutes,
+            'date' => $exam->date,
+            'time' => $exam->time,
+            'teacher_name' => $exam->teacher?->user?->first_name . ' ' . $exam->teacher?->user?->last_name,
+            'continue' => $continue,
+        ];
+    });
 
-        $exams = $exams->map(function ($exam) {
-            return [
-                'id' => $exam->id,
-                'title' => $exam->title,
-                'total_marks' => $exam->total_marks,
-                'duration_minutes' => $exam->duration_minutes,
-                'date' => $exam->date,
-                'time' => $exam->time,
-                'teacher_name' => $exam->teacher?->user?->first_name . ' ' . $exam->teacher?->user?->last_name,
-            ];
-        });
+    return response()->json(['exams' => $exams]);
+}
 
-        return response()->json(['exams' => $exams]);
-    }
 
     /**
      * Create a new exam with questions and answers (Teacher only).

@@ -16,35 +16,32 @@ class ExamResultController extends Controller
     /**
      * Get results of the currently logged-in student
      */
-    public function getStudentResults()
-    {
-        //  Get authenticated user
-        $user = Auth::user();
+public function getStudentResults()
+{
+    $user = Auth::user();
 
-        //  Find student record linked to this user
-        $student = Student::where('user_id', $user->id)->first();
+    $student = Student::where('user_id', $user->id)->first();
 
-        if (!$student) {
-            //  If no student found → return error
-            return response()->json(['error' => 'Student not found.'], 404);
-        }
-
-        //  Fetch all exam results for this student and include exam info
-        $results = ExamResult::where('user_id', $user->id)
-            ->with('exam') // eager load exam relation
-            ->get()
-            ->map(function ($result) {
-                return [
-                    'exam_id'     => $result->exam->id,
-                    'exam_title'  => $result->exam->title,
-                    'total_marks' => $result->exam->total_marks,
-                    'score'       => $result->score,
-                ];
-            });
-
-        //  Return formatted results
-        return response()->json(['results' => $results]);
+    if (!$student) {
+        return response()->json(['error' => 'Student not found.'], 404);
     }
+
+    $results = ExamResult::where('user_id', $user->id)
+        ->whereNotNull('score')
+        ->with('exam')
+        ->get()
+        ->map(function ($result) {
+            return [
+                'exam_id'     => $result->exam->id,
+                'exam_title'  => $result->exam->title,
+                'total_marks' => $result->exam->total_marks,
+                'score'       => $result->score,
+            ];
+        });
+
+    return response()->json(['results' => $results]);
+}
+
 
     /**
      * Get results of a specific exam created by the authenticated teacher
