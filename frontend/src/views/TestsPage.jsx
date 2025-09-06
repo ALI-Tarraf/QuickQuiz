@@ -18,7 +18,7 @@ const TestsPage = () => {
   if (error) return <Errorpage />;
   if (tests.length == 0)
     return <NoResultsPage message="There are no tests yet" />;
-
+  console.log(tests);
   return (
     <>
       <Grid

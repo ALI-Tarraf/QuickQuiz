@@ -14,8 +14,16 @@ import TimerOutlinedIcon from "@mui/icons-material/TimerOutlined";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import { useEffect, useState } from "react";
 const TestCard = ({ value, isInResultsPage = false }) => {
-  const { id, title, date, time, teacher_name, duration_minutes, total_marks } =
-    value;
+  const {
+    id,
+    title,
+    date,
+    time,
+    teacher_name,
+    duration_minutes,
+    total_marks,
+    has_started_at,
+  } = value;
 
   const checkDate = date == new Date().toLocaleDateString("en-CA");
 
@@ -25,14 +33,17 @@ const TestCard = ({ value, isInResultsPage = false }) => {
 
   const testTime = new Date();
   testTime.setHours(hours, minutes, seconds, 0);
-
+  console.log(has_started_at);
   const allowedTime = new Date();
   allowedTime.setHours(hours, minutes + 5, seconds, 0);
 
   useEffect(() => {
     const interval = setInterval(() => {
       const now = new Date();
-      if (testTime <= now && now < allowedTime && checkDate) {
+      if (
+        (testTime <= now && now < allowedTime && checkDate) ||
+        has_started_at
+      ) {
         setStatus(true);
       } else {
         setStatus(false);
