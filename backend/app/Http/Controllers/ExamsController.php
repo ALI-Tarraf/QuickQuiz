@@ -42,11 +42,11 @@ public function index()
 
         if ($result && $result->started_at && is_null($result->score)) {
 
-            $endTime = Carbon::parse($result->started_at)
-                ->addMinutes($exam->duration_minutes);
+            $examStart = Carbon::parse($exam->date . ' ' . $exam->time);
+            $examEnd = $examStart->copy()->addMinutes($exam->duration_minutes);
 
 
-            if (Carbon::now()->lt($endTime)) {
+            if (Carbon::now()->between($examStart, $examEnd)) {
                 $c_continue = true;
             }
         }
@@ -65,7 +65,6 @@ public function index()
 
     return response()->json(['exams' => $exams]);
 }
-
 
 
     /**
