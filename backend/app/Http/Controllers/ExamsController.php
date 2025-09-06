@@ -38,9 +38,9 @@ public function index()
     $exams = $exams->map(function ($exam) use ($user) {
         $result = $exam->results->first();
 
-        $continue = false;
+        $c_continue = false;
         if ($result && $result->started_at && is_null($result->score)) {
-            $continue = true;
+            $c_continue = true;
         }
 
         return [
@@ -51,7 +51,7 @@ public function index()
             'date' => $exam->date,
             'time' => $exam->time,
             'teacher_name' => $exam->teacher?->user?->first_name . ' ' . $exam->teacher?->user?->last_name,
-            'continue' => $continue,
+            'has_started_at' => $c_continue,
         ];
     });
 
